@@ -1,6 +1,6 @@
 services:
   - type: web
     name: orbit-calendar-glasses
-    runtime: static
+    runtime: node
     buildCommand: npm ci && npm run build
-    staticPublishPath: dist
+    startCommand: npm start

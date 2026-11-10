@@ -99,6 +99,8 @@ function App() {
   const [syncMessage, setSyncMessage] = useState('Local calendar ready')
   const [isSyncing, setIsSyncing] = useState(false)
   const [touchStart, setTouchStart] = useState(null)
+  const [pairCode, setPairCode] = useState('')
+  const [pairMessage, setPairMessage] = useState('')
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate])
   const selectedKey = dateKey(selectedDate)
@@ -244,6 +246,31 @@ function App() {
     setShowSettings(false)
   }
 
+  async function connectGlasses() {
+    const normalizedCode = pairCode.replace(/\s/g, '')
+    if (!/^\d{6}$/.test(normalizedCode)) {
+      setPairMessage('Enter the 6-digit code shown on the glasses.')
+      return
+    }
+    if (!caldavUrl) {
+      setPairMessage('Save an ICS feed URL first.')
+      return
+    }
+    setPairMessage('Checking the feed and connecting…')
+    try {
+      const response = await fetch('/api/pair/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: normalizedCode, feedUrl: caldavUrl }),
+      })
+      const body = await response.json()
+      if (!response.ok) throw new Error(body.error || 'Pairing failed')
+      setPairMessage('Connected. The glasses will refresh automatically.')
+    } catch (error) {
+      setPairMessage(error.message)
+    }
+  }
+
   return (
     <main className="app-shell">
       <div className="ambient ambient-left" />
@@ -370,6 +397,20 @@ function App() {
               <button className="secondary-action" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'Loading…' : 'Load DAVx5 updates'}
               </button>
+            </div>
+            <div className="pairing-card">
+              <strong>Connect glasses</strong>
+              <span>Open <code>/glasses.html</code> on the glasses, then enter the 6-digit code shown there.</span>
+              <input
+                inputMode="numeric"
+                maxLength="7"
+                value={pairCode}
+                onChange={(event) => setPairCode(event.target.value)}
+                placeholder="123 456"
+                aria-label="Six-digit glasses pairing code"
+              />
+              <button className="primary-action" onClick={connectGlasses}>Send calendar to glasses</button>
+              {pairMessage && <span className="pair-message">{pairMessage}</span>}
             </div>
             <div className="davx5-note">
               <strong>ICS feed setup</strong>

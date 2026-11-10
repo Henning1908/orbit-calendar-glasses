@@ -30,4 +30,15 @@ Die URL muss im Browser erreichbar sein und CORS erlauben. Die Website kann kein
 
 ### Meta Display glasses
 
-Öffne die Orbit-URL in der Browser- oder Web-App-Umgebung, die dein konkretes Brillenmodell unterstützt. Eine Meta-Entwicklerkonfiguration ist für diese Web-App nicht erforderlich.
+1. Öffne auf der Brille:
+
+   <https://orbit-calendar-glasses.onrender.com/glasses.html>
+
+2. Die Brille zeigt einen sechsstelligen Code.
+3. Öffne Orbit auf dem Telefon oder PC.
+4. Öffne `☷`.
+5. Trage eine ICS-Feed-URL ein und speichere sie.
+6. Trage den sechsstelligen Brillencode ein.
+7. Klicke **Send calendar to glasses**.
+
+Die Brille lädt danach die Termine direkt vom Orbit-Server und aktualisiert sie regelmäßig. Die Website benötigt dafür keine Meta-Developer-Secrets.

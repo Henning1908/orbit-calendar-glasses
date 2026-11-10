@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Orbit Calendar Glasses</title>
+  <link rel="manifest" href="/manifest.webmanifest">
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #020613; color: #f8fbff; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 10%, #163a5a, transparent 45%), #020613; }
+    main { min-height: 100vh; width: min(100%, 600px); margin: auto; padding: 28px; box-sizing: border-box; display: grid; align-content: center; gap: 16px; }
+    .eyebrow { color: #66d8ff; font-weight: 800; letter-spacing: .16em; font-size: .75rem; }
+    h1, p { margin: 0; } h1 { font-size: clamp(2rem, 8vw, 4rem); line-height: .95; }
+    .code { font-size: clamp(3rem, 16vw, 7rem); letter-spacing: .14em; font-weight: 900; color: #66d8ff; }
+    .muted { color: #aab9cf; } .card { border: 1px solid #536984; border-radius: 20px; padding: 18px; background: rgba(8, 24, 43, .9); }
+    .event { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid #30445e; font-size: 1.2rem; }
+    .event:last-child { border-bottom: 0; } .time { color: #28d6a0; font-weight: 800; white-space: nowrap; }
+    button { min-height: 48px; border: 1px solid #ee6d8b; border-radius: 14px; color: inherit; background: transparent; font: inherit; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="eyebrow">ORBIT / GLASSES</div>
+    <h1 id="title">Connect Orbit</h1>
+    <p id="instruction">Enter this code in Orbit on your phone or PC.</p>
+    <div id="code" class="code">------</div>
+    <p id="status" class="muted">Preparing connection…</p>
+    <section id="calendar" class="card" hidden>
+      <p class="eyebrow">UPCOMING</p>
+      <div id="events"></div>
+    </section>
+    <button id="disconnect" type="button" hidden>Disconnect</button>
+  </main>
+  <script>
+    (function () {
+      var deviceId = localStorage.getItem('orbit-glasses-device');
+      var code = document.getElementById('code');
+      var status = document.getElementById('status');
+      var instruction = document.getElementById('instruction');
+      var title = document.getElementById('title');
+      var calendar = document.getElementById('calendar');
+      var events = document.getElementById('events');
+      var disconnect = document.getElementById('disconnect');
+      var pair = null;
+      function api(url, options) {
+        return fetch(url, options).then(function (response) {
+          return response.json().then(function (body) {
+            if (!response.ok) throw new Error(body.error || 'Request failed');
+            return body;
+          });
+        });
+      }
+      function showConnected() {
+        title.textContent = 'Orbit Calendar';
+        instruction.hidden = true;
+        code.hidden = true;
+        calendar.hidden = false;
+        disconnect.hidden = false;
+        status.textContent = 'Connected · updating automatically';
+      }
+      function render(items) {
+        var upcoming = (items || []).slice(0, 8);
+        events.innerHTML = upcoming.length ? upcoming.map(function (item) {
+          return '<div class="event"><span>' + escapeHtml(item.title) + '</span><span class="time">' + escapeHtml(item.time || item.date) + '</span></div>';
+        }).join('') : '<p class="muted">No upcoming events.</p>';
+      }
+      function escapeHtml(value) {
+        return String(value || '').replace(/[&<>"']/g, function (character) {
+          return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+        });
+      }
+      function loadCalendar() {
+        if (!deviceId) return;
+        api('/api/glasses/calendar?deviceId=' + encodeURIComponent(deviceId))
+          .then(function (body) { render(body.events); })
+          .catch(function () { status.textContent = 'Waiting for calendar feed…'; });
+      }
+      function check() {
+        if (!pair) return;
+        api('/api/glasses/status?deviceId=' + encodeURIComponent(pair.id))
+          .then(function (body) {
+            if (body.connected) {
+              deviceId = pair.id;
+              localStorage.setItem('orbit-glasses-device', deviceId);
+              showConnected();
+              loadCalendar();
+            } else {
+              setTimeout(check, 2500);
+            }
+          }).catch(function () { setTimeout(check, 5000); });
+      }
+      function start() {
+        api('/api/glasses/pair', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: deviceId })
+        }).then(function (body) {
+          if (body.connected) {
+            pair = body;
+            showConnected();
+            loadCalendar();
+            return;
+          }
+          pair = body;
+          code.textContent = body.code.slice(0, 3) + ' ' + body.code.slice(3);
+          status.textContent = 'Enter this code on your phone or PC.';
+          check();
+        }).catch(function (error) { status.textContent = error.message; });
+      }
+      disconnect.onclick = function () {
+        api('/api/disconnect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: deviceId })
+        }).then(function () { localStorage.removeItem('orbit-glasses-device'); location.reload(); });
+      };
+      setInterval(loadCalendar, 60000);
+      if (deviceId) {
+        pair = { id: deviceId };
+        api('/api/glasses/status?deviceId=' + encodeURIComponent(deviceId))
+          .then(function (body) { if (body.connected) { showConnected(); loadCalendar(); } else { deviceId = null; start(); } })
+          .catch(function () { start(); });
+      } else start();
+    }());
+  </script>
+</body>
+</html>

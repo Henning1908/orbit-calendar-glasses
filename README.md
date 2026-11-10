@@ -26,4 +26,8 @@ The feed must be a browser-accessible ICS URL and allow CORS. A normal private D
 
 ## Meta display glasses
 
-Open the live URL in a browser or web-app environment supported by your glasses. The app uses large controls, high contrast, and touch-friendly navigation.
+Open the glasses view at:
+
+<https://orbit-calendar-glasses.onrender.com/glasses.html>
+
+It shows a six-digit code. On your phone or PC, open the main app, choose `☷`, enter your ICS feed URL and the code, then choose **Send calendar to glasses**. The glasses then load the calendar from Orbit and refresh it automatically.
