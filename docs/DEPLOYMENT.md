@@ -32,6 +32,8 @@ npm run deploy:cloudflare
 
 The build creates `dist/`, then packages the static files into an ignored generated module at `src/cloudflare-assets.js` for the Worker. `wrangler.jsonc` binds D1 as `DB`; `ORBIT_STORAGE_KEY` is a Worker secret, not a checked-in variable.
 
+The Meta display web app manifest is served at `/.well-known/meta-wearables-manifest.json`. Keep its icon URL on HTTPS and use transparent monochrome artwork; the current 512 × 512 PNG is generated from `docs/assets/meta-display-apps-monochrome.svg` and served as binary PNG data by the Worker.
+
 ## Verify the deployment
 
 - Open `/` and `/glasses.html` on the Worker URL.
@@ -56,3 +58,4 @@ Vite serves the interface only. For a local API, use Wrangler's local Worker env
 - Keep `ORBIT_STORAGE_KEY` backed up. A replacement key cannot decrypt connection records encrypted with the old key.
 - Pairing codes expire after 10 minutes. Old pending codes are cleaned up when a new code is created.
 - If a Free quota is reached, requests can fail until the quota resets. Do not switch to a paid plan without reviewing the expected cost first.
+
