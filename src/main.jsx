@@ -391,6 +391,7 @@ function App() {
               <span>Swipe or ← → month</span>
               <span>T = today</span>
               <a className="help-link" href="/guide.html">Setup guide</a>
+              <a className="help-link" href="https://webuntis-glasses.henning-orbit-calendar.workers.dev/">WebUntis Glasses ↗</a>
               <a className="support-link" href="https://gofund.me/89190630b" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
               <button className="sync-link" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'syncing…' : '↻ sync now'}

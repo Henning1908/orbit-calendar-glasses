@@ -10,6 +10,8 @@ A calm, glance-first calendar for the web and Meta display glasses. Connect a re
 
 [Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Set up the glasses](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
 
+Part of **Meta Display Apps** — explore [WebUntis Glasses](https://webuntis-glasses.henning-orbit-calendar.workers.dev/) for your school timetable.
+
 [English guide](docs/USER_GUIDE.md) · [Anleitung auf Deutsch](docs/USER_GUIDE.de.md) · [Deployment](docs/DEPLOYMENT.md) · [Veröffentlichungs-Checkliste](docs/PUBLIC_RELEASE_CHECKLIST.de.md) · [Buy me a coffee](https://gofund.me/89190630b)
 
 </div>
