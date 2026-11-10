@@ -3,7 +3,15 @@
   "short_name": "Orbit",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020613",
-  "theme_color": "#06101f",
-  "description": "A glance-first calendar web app for supported Meta display environments."
+  "background_color": "#08111d",
+  "theme_color": "#08111d",
+  "description": "A calm, read-only calendar for the web and supported Meta display glasses.",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }

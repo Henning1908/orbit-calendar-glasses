@@ -134,13 +134,13 @@ function App() {
         throw new Error(rawBody ? `HTTP ${response.status}: ${rawBody.slice(0, 120)}` : `HTTP ${response.status}`)
       }
       if (!rawBody.trim()) {
-        throw new Error('Orbit API returned an empty response. Run the Node service, not the static preview.')
+        throw new Error('The API returned an empty response. Open the Cloudflare app URL, not a local static preview.')
       }
       let body
       try {
         body = JSON.parse(rawBody)
       } catch {
-        throw new Error('Orbit API returned an invalid response. Check the Node service deployment.')
+        throw new Error('The API returned an invalid response. Reload the Cloudflare app and try again.')
       }
       const remoteEvents = (body.events || []).reduce((result, event) => {
         result[event.date] = [...(result[event.date] || []), event]
@@ -157,7 +157,7 @@ function App() {
         localStorage.setItem('orbit-events', JSON.stringify(next))
         return next
       })
-      setSyncMessage(`Updated from DAVx5 · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`)
+      setSyncMessage(`Updated from calendar feed · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`)
     } catch (error) {
       setSyncMessage(`Sync unavailable: ${error.message}`)
     } finally {
@@ -267,7 +267,7 @@ function App() {
 
   function saveCalDav() {
     localStorage.setItem('orbit-caldav-url', caldavUrl)
-    setSyncMessage(caldavUrl ? 'ICS feed URL saved locally' : 'ICS feed URL cleared')
+    setSyncMessage(caldavUrl ? 'Calendar address saved on this device' : 'Calendar address cleared')
     setShowSettings(false)
   }
 
@@ -381,6 +381,7 @@ function App() {
             <div className="glance-footer" aria-live="polite">
               <span>Swipe or ← → month</span>
               <span>T = today</span>
+              <a className="help-link" href="/guide.html">Setup guide</a>
               <button className="sync-link" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'syncing…' : '↻ sync now'}
               </button>
@@ -409,13 +410,13 @@ function App() {
           <section className="settings-card" onClick={(event) => event.stopPropagation()}>
             <div className="settings-heading">
               <div>
-                <p className="eyebrow">SYNC / DAVX5</p>
+                <p className="eyebrow">SYNC / CALENDAR</p>
                 <h2>Calendar feed</h2>
               </div>
               <button className="icon-button" onClick={() => setShowSettings(false)} aria-label="Close settings">×</button>
             </div>
             <p className="muted">
-              Orbit can show a browser-accessible ICS feed. For glasses pairing, it can also read a protected CalDAV calendar with the server URL, username, and password.
+              Add a public ICS feed or a CalDAV server URL with your username and app password. Calendar sync is read-only. Your browser password is not saved; a glasses connection is stored encrypted on the Orbit server after pairing.
             </p>
             <label>
               CalDAV base or calendar URL
@@ -445,12 +446,12 @@ function App() {
               />
             </label>
             <div className="settings-actions">
-              <button className="primary-action" onClick={saveCalDav}>Save connection</button>
+              <button className="primary-action" onClick={saveCalDav}>Save address</button>
               <button className="secondary-action" onClick={exportCalendar}>Export .ics</button>
             </div>
             <div className="settings-actions">
               <button className="secondary-action" onClick={syncFromCalendarFeed} disabled={isSyncing}>
-                {isSyncing ? 'Loading…' : 'Load DAVx5 updates'}
+                {isSyncing ? 'Syncing…' : 'Sync calendar'}
               </button>
             </div>
             <div className="pairing-card">
@@ -468,8 +469,8 @@ function App() {
               {pairMessage && <span className="pair-message">{pairMessage}</span>}
             </div>
             <div className="davx5-note">
-              <strong>DAVx5 / CalDAV</strong>
-              <span>Use the CalDAV server URL behind DAVx5, not a DAVx5 app URL. A private CalDAV connection is used only for the paired glasses; the browser itself still cannot read the Android Calendar Provider.</span>
+              <strong>CALDAV / ACCESS</strong>
+              <span>Use the CalDAV server address from your calendar provider. Orbit reads events from the server; it cannot access the Android Calendar Provider directly. For a private glasses connection, use an app password when your provider offers one.</span>
             </div>
           </section>
         </div>

@@ -1,7 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap');
-
 :root {
-  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   color: #f8fbff;
   background: #020613;
   font-synthesis: none;
@@ -82,6 +80,8 @@ button:disabled { opacity: .38; cursor: not-allowed; }
 .glance-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: #b2c1d7; font-size: .76rem; margin-top: 18px; }
 .sync-state { color: var(--mint); text-align: right; }
 .sync-link { border: 0; padding: 0; background: transparent; color: var(--cyan); font-size: .76rem; }
+.help-link { color: var(--cyan); text-decoration: none; }
+.help-link:hover { text-decoration: underline; }
 .sync-link:disabled { color: var(--muted); }
 
 .add-screen { padding: 14px 4px; }

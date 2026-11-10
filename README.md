@@ -1,38 +1,73 @@
+<div align="center">
+
+<img src="docs/assets/orbit-hero.svg" alt="Orbit Calendar with a month view for the web and Meta display glasses" width="100%">
+
 # Orbit Calendar
 
-Orbit Calendar runs as one Cloudflare Worker. The Worker serves the calendar website and the API used by the Meta display glasses; Cloudflare D1 stores device pairings and encrypted CalDAV credentials.
+### Your calendar, in one clear glance.
 
-## Live app
+A calm, glance-first calendar for the web and Meta display glasses. Connect a read-only ICS feed or a private CalDAV calendar, pair the glasses with a short code, and keep upcoming plans close.
 
-- Calendar: <https://orbit-calendar.henning-orbit-calendar.workers.dev/>
-- Meta display glasses: <https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html>
+[Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Set up the glasses](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
 
-## Calendar sync
+[English guide](docs/USER_GUIDE.md) · [Anleitung auf Deutsch](docs/USER_GUIDE.de.md) · [Deployment](docs/DEPLOYMENT.md)
 
-The browser can sync a public ICS feed. For a private calendar, pair the glasses from the app settings using the CalDAV server URL, username, and an app password. Orbit checks that connection on the server and stores its credentials encrypted with AES-GCM; the glasses receive only a device token and calendar events. The glasses page requests updated events every 60 seconds and when it becomes active again.
+</div>
 
-## Local development
+---
+
+## Start in a minute
+
+1. Open the [glasses page](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) on a supported display browser. Leave it open; a six-digit pairing code appears.
+2. On your phone or computer, open [Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) and choose the settings button.
+3. Enter the CalDAV server address, username, and an app password. Enter the code from the glasses and choose **Send calendar to glasses**.
+
+The glasses check for calendar changes every 60 seconds. The code expires after 10 minutes. No account, app install, or payment is required to try the hosted app.
+
+> Need help finding your provider's CalDAV address? See the [step-by-step guide](docs/USER_GUIDE.md) or the [German version](docs/USER_GUIDE.de.md).
+
+## What Orbit does
+
+| Feature | How it works |
+| --- | --- |
+| Calendar at a glance | Navigate by month, select a day, add local plans, and export an `.ics` file. |
+| Read-only calendar sync | Load a public ICS feed, or use a CalDAV URL and credentials. Orbit reads events; it does not write changes back to your provider. |
+| Meta display glasses | Pair with a six-digit code and show upcoming events in a compact display view. |
+| Automatic refresh | The glasses page fetches current events every 60 seconds and when reopened. |
+| Privacy-aware storage | CalDAV credentials for a paired device are encrypted before storage. The glasses keep a device token, not your calendar password. |
+
+![Orbit Calendar service diagram: browser and glasses connect to the Cloudflare Worker, which reads ICS or CalDAV events and stores encrypted pairing data in D1](docs/assets/architecture.svg)
+
+## Privacy and data
+
+- Calendar reads are **read-only**. Local plans stay in the browser and are not uploaded to CalDAV.
+- A browser-only CalDAV password stays in the open page's memory and is not saved in browser storage.
+- When you pair the glasses, Orbit stores the CalDAV connection encrypted in Cloudflare D1 using a Worker secret. The secret is not in this repository.
+- Calendar events are fetched from your provider when requested; Orbit does not keep a copy of the event list in D1.
+- Disconnect the glasses from the glasses page to remove their saved server connection.
+
+## Cost and availability
+
+The hosted app uses Cloudflare Workers Free and D1 Free. Free plans have usage limits, so this is suitable for personal and low-volume use, not unlimited traffic. If an account reaches a free quota, requests can fail until the quota resets; the app does not upgrade itself to a paid plan. Limits can change—check Cloudflare's current [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) and [D1 pricing and quotas](https://developers.cloudflare.com/d1/platform/pricing/).
+
+## Documentation
+
+- [User guide — English](docs/USER_GUIDE.md)
+- [Benutzeranleitung — Deutsch](docs/USER_GUIDE.de.md)
+- [Architecture and data flow](docs/ARCHITECTURE.md)
+- [Cloudflare deployment and maintenance](docs/DEPLOYMENT.md)
+
+## Develop locally
 
 ```sh
 npm install
 npm run dev
 ```
 
-The local Vite preview serves the UI only. The production API runs in the Cloudflare Worker.
+Vite serves the interface locally. The production API runs in the Cloudflare Worker; the glasses pairing and sync flow therefore needs the deployed app or a local Worker environment.
 
-## Cloudflare deployment
+For a production build and Cloudflare deployment, follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Do not commit `.env.cloudflare-secret` or any calendar credentials.
 
-This repository is configured for the existing Cloudflare Worker and D1 database. Install dependencies and authenticate Wrangler, then set the encryption secret once:
+## License
 
-```sh
-npm install
-npx wrangler login
-npx wrangler secret put ORBIT_STORAGE_KEY
-npm run deploy:cloudflare
-```
-
-Use a long random value for `ORBIT_STORAGE_KEY` and keep it stable after users connect calendars. Never commit it. Database schema changes live in `migrations/` and are applied with `npx wrangler d1 migrations apply orbit-calendar --remote`.
-
-## Free tier
-
-The app uses Workers and D1 without a paid Render service. Cloudflare's free limits apply: Workers has a daily request limit, and D1 has daily row read/write and storage limits. Requests stop working when a free limit is reached until it resets, so usage must stay within those limits to remain free. See Cloudflare's [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) and [D1 pricing and included usage](https://developers.cloudflare.com/d1/platform/pricing/).
+This repository currently has no open-source license. Unless the owner adds one, all rights are reserved; public access to the hosted app does not grant permission to reuse or redistribute the source code.

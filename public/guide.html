@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#081525">
+  <meta name="description" content="Set up Orbit Calendar for your browser and Meta display glasses. Read-only ICS and CalDAV sync, with automatic refresh.">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <script>
+    if (location.hostname === 'orbit-calendar-glasses.onrender.com') location.replace(`https://orbit-calendar.henning-orbit-calendar.workers.dev${location.pathname}${location.search}${location.hash}`)
+  </script>
+  <title>Setup guide · Orbit Calendar</title>
+  <style>
+    :root{color-scheme:dark;font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#eff6ff;background:#08111d;font-synthesis:none;--muted:#a8b9ca;--line:#2b4054;--cyan:#91e9ff;--mint:#52dfb2;--panel:#101f30}
+    *{box-sizing:border-box}body{margin:0;min-width:320px;background:radial-gradient(ellipse at 80% -15%,#174464 0,transparent 38rem),#08111d}a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}a:focus-visible{outline:3px solid var(--mint);outline-offset:4px;border-radius:4px}.wrap{width:min(1060px,calc(100% - 40px));margin:auto}.nav{height:80px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ffffff18}.brand{display:flex;align-items:center;gap:12px;color:#f5f9ff;font-weight:800;letter-spacing:.02em}.mark{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:linear-gradient(145deg,#b7f5ff,#42bce7);color:#071421;font-size:19px}.navlinks{display:flex;gap:20px;align-items:center;color:#c5d2df;font-size:14px}.lang{padding:8px 12px;border:1px solid var(--line);border-radius:99px}.hero{padding:78px 0 52px;max-width:800px}.eyebrow{color:var(--mint);font-size:12px;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.hero h1{font-size:clamp(42px,7vw,76px);line-height:.98;letter-spacing:-.065em;margin:18px 0}.hero p{color:#c1cfdd;font-size:19px;line-height:1.7;max-width:710px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}.button{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 18px;border-radius:14px;background:linear-gradient(135deg,#a8f0ff,#56c4e8);color:#061522;font-weight:800}.button.secondary{background:#14283a;color:#e7f5ff;border:1px solid #3c566d}.section{padding:34px 0}.section h2{font-size:30px;letter-spacing:-.04em;margin:0 0 10px}.intro{color:var(--muted);line-height:1.7;margin:0 0 24px}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{background:linear-gradient(155deg,#122438,#0e1b2a);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 14px 40px #0002}.number{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:#143e4c;color:var(--mint);font-weight:900}.card h3{margin:18px 0 10px;font-size:19px}.card p,.card li{color:#b7c8d8;line-height:1.65}.card p{margin:0}.card ul{padding-left:18px}.url{display:block;overflow-wrap:anywhere;background:#091521;border:1px solid #294159;border-radius:12px;padding:12px;margin:14px 0;font-size:13px}.note{border-left:3px solid var(--mint);background:#102a2b;padding:16px 18px;color:#d2e8e4;border-radius:0 14px 14px 0;line-height:1.65;margin:20px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.small{font-size:14px;color:var(--muted);line-height:1.65}.faq{border-top:1px solid var(--line);padding:17px 0}.faq h3{font-size:16px;margin:0 0 7px}.faq p{margin:0;color:var(--muted);line-height:1.65}.footer{padding:30px 0 48px;margin-top:38px;border-top:1px solid #ffffff18;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    @media(max-width:740px){.steps,.grid{grid-template-columns:1fr}.nav{height:68px}.navlinks{gap:12px}.hero{padding:56px 0 34px}.card{padding:20px}.wrap{width:min(100% - 28px,620px)}}
+  </style>
+</head>
+<body>
+  <header class="wrap nav">
+    <a class="brand" href="/"><span class="mark" aria-hidden="true">◒</span><span>Orbit Calendar</span></a>
+    <nav class="navlinks" aria-label="Main navigation"><a href="/">Calendar</a><a href="/glasses.html">Glasses</a><a class="lang" href="/guide.de.html" lang="de">Deutsch</a></nav>
+  </header>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">A calm view of what’s next</div>
+      <h1>Your calendar,<br>in one clear glance.</h1>
+      <p>Orbit brings read-only ICS and CalDAV events to a simple web calendar and your Meta display glasses. Pair once, then let the display refresh automatically.</p>
+      <div class="actions"><a class="button" href="/">Open calendar <span aria-hidden="true">&nbsp;↗</span></a><a class="button secondary" href="/glasses.html">Open glasses view</a></div>
+    </section>
+    <section class="section" id="pairing">
+      <h2>Connect the glasses</h2>
+      <p class="intro">You’ll need the glasses and a phone or computer online at the same time. No app install or Orbit account is required.</p>
+      <div class="steps">
+        <article class="card"><span class="number">01</span><h3>Show a pairing code</h3><p>Open the glasses view on your Meta display and keep it open. Orbit shows a six-digit code that expires after ten minutes.</p><span class="url">https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html</span></article>
+        <article class="card"><span class="number">02</span><h3>Add your CalDAV account</h3><p>On your phone or computer, open the calendar settings. Enter your provider’s HTTPS CalDAV address, username, and app password.</p><p class="small">Use the provider’s calendar server URL, not the URL of a sync companion app.</p></article>
+        <article class="card"><span class="number">03</span><h3>Pair and leave it open</h3><p>Enter the code and choose <strong>Send calendar to glasses</strong>. Orbit checks access, then the glasses show upcoming events and refresh about every minute.</p></article>
+      </div>
+      <div class="note"><strong>Tip:</strong> Choose an app-specific password if your provider offers one. The glasses receive a device token and event data, never the CalDAV password.</div>
+    </section>
+    <section class="section" id="browser">
+      <h2>Use Orbit in a browser</h2>
+      <div class="grid">
+        <article class="card"><h3>Connect a calendar</h3><p>Open Settings and paste a public ICS feed, or enter a CalDAV URL and credentials for a read-only fetch. Choose <strong>Sync calendar</strong> to load events. The open page refreshes once a minute.</p></article>
+        <article class="card"><h3>Plan your day</h3><p>Select a date, move between months, and use <strong>Add plan</strong> for local reminders. These plans stay in this browser. <strong>Export .ics</strong> downloads them as a file; Orbit does not write them back to CalDAV.</p></article>
+      </div>
+    </section>
+    <section class="section" id="privacy">
+      <h2>Built for a light touch</h2>
+      <div class="grid">
+        <article class="card"><h3>Read-only by design</h3><p class="small">Orbit reads events from ICS or CalDAV. Your calendar provider remains the source of truth. Local plans are not uploaded.</p></article>
+        <article class="card"><h3>Credentials stay protected</h3><p class="small">Browser-only credentials are not saved. When pairing glasses, the CalDAV connection is encrypted before it is stored by Orbit. Disconnect removes the saved pairing.</p></article>
+      </div>
+    </section>
+    <section class="section" id="help">
+      <h2>Quick answers</h2>
+      <div class="faq"><h3>Where do I find my CalDAV URL?</h3><p>Check your calendar provider’s setup page. Some providers require an app password. A public ICS URL works for browser viewing, but glasses pairing currently uses CalDAV credentials.</p></div>
+      <div class="faq"><h3>The code expired or was rejected.</h3><p>Reload the glasses page for a new code, then enter it within ten minutes while both devices are online.</p></div>
+      <div class="faq"><h3>I don’t see any events.</h3><p>Check the account, server address, and calendar permissions. Orbit needs permission to read the calendar and an internet connection on the glasses.</p></div>
+      <p class="small">The glasses view requires a supported display web view with JavaScript and local storage. Compatibility varies by device and calendar provider.</p>
+    </section>
+  </main>
+  <footer class="wrap footer"><span>Orbit Calendar · Read-only ICS &amp; CalDAV</span><span><a href="/">Open app</a> · <a href="/glasses.html">Glasses view</a> · <a href="https://github.com/Henning1908/orbit-calendar-glasses">Source repository</a></span></footer>
+</body>
+</html>

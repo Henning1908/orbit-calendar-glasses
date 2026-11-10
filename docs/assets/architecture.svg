@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 470" role="img" aria-labelledby="title desc">
+  <title id="title">Orbit Calendar architecture</title>
+  <desc id="desc">Browser and glasses request events from Orbit on Cloudflare, which reads the calendar provider and stores encrypted pairing data.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#0b1d32"/><stop offset="1" stop-color="#111a2c"/></linearGradient>
+    <linearGradient id="accent"><stop stop-color="#a1f0ff"/><stop offset="1" stop-color="#39b9e8"/></linearGradient>
+    <marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 9 4.5 0 9z" fill="#62dfff"/></marker>
+  </defs>
+  <rect width="1200" height="470" rx="30" fill="url(#bg)"/>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <text x="600" y="55" fill="#f4f8ff" font-size="24" font-weight="700">One small, read-only path from calendar to glance</text>
+    <g transform="translate(55 150)">
+      <rect width="205" height="145" rx="22" fill="#122c44" stroke="#52718b"/>
+      <rect x="75" y="18" width="55" height="40" rx="8" fill="none" stroke="#a2edff" stroke-width="3"/><path d="M66 65h73M91 59v6m23-6v6" stroke="#a2edff" stroke-width="3" stroke-linecap="round"/>
+      <text x="102" y="100" fill="#f3f8ff" font-size="17" font-weight="700">Browser &amp; glasses</text>
+      <text x="102" y="125" fill="#b5c6da" font-size="13">Pair · display · refresh</text>
+    </g>
+    <path d="M276 222h100" stroke="#62dfff" stroke-width="3" marker-end="url(#arrow)"/><text x="326" y="203" fill="#a9c6dc" font-size="12">HTTPS</text>
+    <g transform="translate(395 130)">
+      <rect width="290" height="185" rx="24" fill="#102c40" stroke="#69d9f4" stroke-width="2"/>
+      <rect x="29" y="24" width="42" height="42" rx="14" fill="url(#accent)"/><path d="M42 37h17M42 45h17M42 53h11" stroke="#062035" stroke-width="2.5" stroke-linecap="round"/>
+      <text x="89" y="42" fill="#f4f9ff" font-size="19" font-weight="700" text-anchor="start">Cloudflare Worker</text>
+      <text x="145" y="104" fill="#d5e4f1" font-size="14">Serves the app and API</text>
+      <text x="145" y="128" fill="#d5e4f1" font-size="14">Reads ICS / CalDAV on request</text>
+      <text x="145" y="152" fill="#d5e4f1" font-size="14">Encrypts paired credentials</text>
+    </g>
+    <path d="M701 222h92" stroke="#62dfff" stroke-width="3" marker-end="url(#arrow)"/><text x="747" y="203" fill="#a9c6dc" font-size="12">read-only</text>
+    <g transform="translate(810 150)">
+      <rect width="190" height="145" rx="22" fill="#22263d" stroke="#74678a"/>
+      <path d="M65 48c8-13 23-18 38-15l42 7c14 2 24 14 22 28l-2 17c-1 8-8 14-16 14h-14c-13 0-25-8-29-21l-5-14-5 14c-4 13-16 21-29 21H53c-8 0-15-6-16-14l-2-17c-2-14 8-26 22-28z" fill="#263f55" stroke="#a3dbec" stroke-width="2.5"/>
+      <text x="95" y="118" fill="#f3f8ff" font-size="16" font-weight="700">Calendar provider</text>
+      <text x="95" y="137" fill="#b5c6da" font-size="12">ICS or CalDAV</text>
+    </g>
+    <path d="M540 330v44" stroke="#56d7a5" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <g transform="translate(445 383)">
+      <rect width="190" height="60" rx="17" fill="#123a3a" stroke="#3ed8aa"/>
+      <path d="M34 20h24v20H34zM39 15h14M39 45h14" fill="none" stroke="#88f0ce" stroke-width="2"/>
+      <text x="115" y="27" fill="#f3f8ff" font-size="15" font-weight="700">Cloudflare D1</text>
+      <text x="115" y="45" fill="#b5dacf" font-size="11">Encrypted pairings only</text>
+    </g>
+    <text x="1100" y="418" fill="#aebfd2" font-size="12">Events stay with your provider</text>
+  </g>
+</svg>

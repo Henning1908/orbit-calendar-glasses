@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 760" role="img" aria-labelledby="title desc">
+  <title id="title">Orbit Calendar</title>
+  <desc id="desc">A clear calendar view for your browser and display glasses.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#071426"/><stop offset=".55" stop-color="#0a2137"/><stop offset="1" stop-color="#111b34"/></linearGradient>
+    <radialGradient id="glow"><stop stop-color="#5be0ff" stop-opacity=".32"/><stop offset="1" stop-color="#5be0ff" stop-opacity="0"/></radialGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#99efff"/><stop offset="1" stop-color="#37b4e6"/></linearGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1b3653"/><stop offset="1" stop-color="#101c30"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="22" stdDeviation="22" flood-color="#000" flood-opacity=".38"/></filter>
+  </defs>
+  <rect width="1440" height="760" rx="38" fill="url(#bg)"/>
+  <circle cx="1180" cy="150" r="410" fill="url(#glow)"/>
+  <circle cx="120" cy="690" r="300" fill="url(#glow)" opacity=".5"/>
+  <path d="M0 585C275 485 438 708 718 626s442-204 722-101v235H0z" fill="#091a2a" opacity=".5"/>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <g transform="translate(102 112)">
+      <rect x="0" y="0" width="52" height="52" rx="17" fill="url(#blue)"/>
+      <path d="M16 19h20M16 27h20M16 35h13" stroke="#061321" stroke-width="3.5" stroke-linecap="round"/>
+      <text x="70" y="22" fill="#a6eaff" font-size="16" font-weight="700" letter-spacing="4">ORBIT / CALENDAR</text>
+      <text x="0" y="139" fill="#f7fbff" font-size="67" font-weight="700" letter-spacing="-3">Your calendar,</text>
+      <text x="0" y="216" fill="#f7fbff" font-size="67" font-weight="700" letter-spacing="-3">in one clear glance.</text>
+      <text x="4" y="267" fill="#b4c7dc" font-size="22">A calm view for the web and Meta display glasses.</text>
+      <g transform="translate(0 322)">
+        <rect width="185" height="52" rx="16" fill="#8cecff"/>
+        <text x="25" y="33" fill="#061321" font-size="16" font-weight="700">OPEN CALENDAR</text>
+        <rect x="202" width="179" height="52" rx="16" fill="#12283d" stroke="#42617c"/>
+        <text x="227" y="33" fill="#e5f2ff" font-size="16" font-weight="700">PAIR GLASSES</text>
+      </g>
+      <g transform="translate(0 425)" fill="#d6e4f2" font-size="15">
+        <circle cx="6" cy="7" r="5" fill="#35d5a2"/><text x="21" y="12">Read-only ICS &amp; CalDAV</text>
+        <circle cx="232" cy="7" r="5" fill="#35d5a2"/><text x="247" y="12">Refreshes every minute</text>
+      </g>
+    </g>
+    <g transform="translate(740 75) rotate(2 280 295)" filter="url(#shadow)">
+      <rect width="488" height="558" rx="30" fill="url(#glass)" stroke="#64819a" stroke-opacity=".6"/>
+      <rect x="18" y="18" width="452" height="522" rx="22" fill="#081629" stroke="#90a8bd" stroke-opacity=".18"/>
+      <text x="48" y="68" fill="#6ddfff" font-size="11" font-weight="700" letter-spacing="3">ORBIT / GLANCE MODE</text>
+      <text x="48" y="119" fill="#f4f8ff" font-size="38" font-weight="700">October 2026</text>
+      <g transform="translate(42 151)" font-size="13" text-anchor="middle" fill="#bfd0e4">
+        <text x="22" y="0">S</text><text x="80" y="0">M</text><text x="138" y="0">T</text><text x="196" y="0">W</text><text x="254" y="0">T</text><text x="312" y="0">F</text><text x="370" y="0">S</text>
+      </g>
+      <g transform="translate(42 174)" fill="#122740" stroke="#34516b" stroke-width="1">
+        <rect x="0" y="0" width="47" height="47" rx="13"/><rect x="58" y="0" width="47" height="47" rx="13"/><rect x="116" y="0" width="47" height="47" rx="13"/><rect x="174" y="0" width="47" height="47" rx="13"/><rect x="232" y="0" width="47" height="47" rx="13"/><rect x="290" y="0" width="47" height="47" rx="13"/><rect x="348" y="0" width="47" height="47" rx="13"/>
+        <rect x="0" y="58" width="47" height="47" rx="13"/><rect x="58" y="58" width="47" height="47" rx="13"/><rect x="116" y="58" width="47" height="47" rx="13"/><rect x="174" y="58" width="47" height="47" rx="13"/><rect x="232" y="58" width="47" height="47" rx="13"/><rect x="290" y="58" width="47" height="47" rx="13"/><rect x="348" y="58" width="47" height="47" rx="13"/>
+        <rect x="0" y="116" width="47" height="47" rx="13"/><rect x="58" y="116" width="47" height="47" rx="13"/><rect x="116" y="116" width="47" height="47" rx="13"/><rect x="174" y="116" width="47" height="47" rx="13"/><rect x="232" y="116" width="47" height="47" rx="13"/><rect x="290" y="116" width="47" height="47" rx="13"/><rect x="348" y="116" width="47" height="47" rx="13"/>
+      </g>
+      <rect x="216" y="290" width="47" height="47" rx="13" fill="url(#blue)"/>
+      <g fill="#eaf4ff" font-size="17" font-weight="600" text-anchor="middle">
+        <text x="65" y="205">27</text><text x="123" y="205">28</text><text x="181" y="205">29</text><text x="239" y="205">30</text><text x="297" y="205">1</text><text x="355" y="205">2</text><text x="413" y="205">3</text>
+        <text x="65" y="263">4</text><text x="123" y="263">5</text><text x="181" y="263">6</text><text x="239" y="263">7</text><text x="297" y="263">8</text><text x="355" y="263">9</text><text x="413" y="263">10</text>
+        <text x="65" y="321">11</text><text x="123" y="321">12</text><text x="181" y="321">13</text><text x="239" y="321" fill="#03101d">14</text><text x="297" y="321">15</text><text x="355" y="321">16</text><text x="413" y="321">17</text>
+      </g>
+      <rect x="40" y="375" width="408" height="128" rx="20" fill="#10273a" stroke="#3c5d71"/>
+      <circle cx="62" cy="402" r="5" fill="#3bddab"/>
+      <text x="80" y="407" fill="#3bddab" font-size="12" font-weight="700" letter-spacing="2">DAILY PLAN</text>
+      <text x="60" y="444" fill="#f3f8ff" font-size="21" font-weight="700">Wednesday, Oct 14</text>
+      <rect x="60" y="461" width="169" height="27" rx="13" fill="#193b4c"/>
+      <text x="74" y="480" fill="#b9eaff" font-size="13">Design review</text>
+      <text x="406" y="480" fill="#3bddab" font-size="13" text-anchor="end">10:30</text>
+    </g>
+    <g transform="translate(1142 579) rotate(-4)" filter="url(#shadow)">
+      <path d="M0 32c10-16 30-23 51-20l78 12 78-12c21-3 41 4 51 20l-7 49c-2 15-17 26-32 25l-47-2c-23-1-42-17-48-38l-5-19-5 19c-6 21-25 37-48 38l-47 2C3 105-12 94-14 79z" fill="#11273b" stroke="#8cb3c7" stroke-width="4"/>
+      <path d="M29 41c8-8 21-12 34-10l37 6-5 28c-3 17-18 29-35 29H38c-12 0-21-10-20-22l3-16c1-6 3-11 8-15zm137-4 37-6c13-2 26 2 34 10 5 4 7 9 8 15l3 16c1 12-8 22-20 22h-22c-17 0-32-12-35-29z" fill="#153c53" stroke="#64cde9" stroke-width="2"/>
+      <path d="M104 37h50" stroke="#b6ecfb" stroke-width="5" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>
