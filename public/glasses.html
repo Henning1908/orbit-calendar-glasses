@@ -18,7 +18,9 @@
     h1, p { margin: 0; } h1 { font-size: clamp(2rem, 8vw, 4rem); line-height: .95; }
     .code { font-size: clamp(3rem, 16vw, 7rem); letter-spacing: .14em; font-weight: 900; color: #66d8ff; }
     .muted { color: #aab9cf; } .card { border: 1px solid #536984; border-radius: 20px; padding: 18px; background: rgba(8, 24, 43, .9); }
-    .event { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1px solid #30445e; font-size: 1.2rem; }
+    .today-label { margin: 7px 0 4px; color: #aab9cf; font-size: 1rem; }
+    .event { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 14px 0; border-bottom: 1px solid #30445e; font-size: 1.2rem; }
+    .event-title { min-width: 0; overflow-wrap: anywhere; }
     .event:last-child { border-bottom: 0; } .time { color: #28d6a0; font-weight: 800; white-space: nowrap; }
     button { min-height: 48px; border: 1px solid #ee6d8b; border-radius: 14px; color: inherit; background: transparent; font: inherit; }
   </style>
@@ -32,6 +34,7 @@
     <p id="status" class="muted">Preparing connection…</p>
     <section id="calendar" class="card" hidden>
       <p class="eyebrow">UPCOMING</p>
+      <p id="today" class="today-label"></p>
       <div id="events"></div>
     </section>
     <button id="disconnect" type="button" hidden>Disconnect</button>
@@ -44,6 +47,7 @@
       var instruction = document.getElementById('instruction');
       var title = document.getElementById('title');
       var calendar = document.getElementById('calendar');
+      var today = document.getElementById('today');
       var events = document.getElementById('events');
       var disconnect = document.getElementById('disconnect');
       var pair = null;
@@ -64,9 +68,29 @@
         status.textContent = 'Connected · updating automatically';
       }
       function render(items) {
-        var upcoming = (items || []).slice(0, 8);
-        events.innerHTML = upcoming.length ? upcoming.map(function (item) {
-          return '<div class="event"><span>' + escapeHtml(item.title) + '</span><span class="time">' + escapeHtml(item.time || item.date) + '</span></div>';
+        var now = new Date();
+        var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        today.textContent = new Intl.DateTimeFormat(undefined, {
+          weekday: 'long', month: 'long', day: 'numeric', year: 'numeric'
+        }).format(todayStart);
+        var upcoming = (items || []).map(function (item) {
+          if (!/^\d{4}-\d{2}-\d{2}$/.test(item.date || '')) return null;
+          var dateParts = item.date.split('-').map(Number);
+          var timeParts = /^\d{2}:\d{2}$/.test(item.time || '') ? item.time.split(':').map(Number) : [0, 0];
+          var startsAt = new Date(dateParts[0], dateParts[1] - 1, dateParts[2], timeParts[0], timeParts[1]);
+          if (Number.isNaN(startsAt.getTime())) return null;
+          var dateOnly = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+          if (dateOnly < todayStart || (dateOnly.getTime() === todayStart.getTime() && item.time && startsAt < now)) return null;
+          return { item: item, startsAt: startsAt, dateOnly: dateOnly };
+        }).filter(Boolean).sort(function (a, b) {
+          return a.startsAt - b.startsAt;
+        }).slice(0, 8);
+        events.innerHTML = upcoming.length ? upcoming.map(function (event) {
+          var dateLabel = event.dateOnly.getTime() === todayStart.getTime()
+            ? 'Today'
+            : new Intl.DateTimeFormat(undefined, { weekday: 'short', month: 'short', day: 'numeric' }).format(event.dateOnly);
+          var timeLabel = event.item.time || 'All day';
+          return '<div class="event"><span class="event-title">' + escapeHtml(event.item.title) + '</span><span class="time">' + escapeHtml(dateLabel + ' · ' + timeLabel) + '</span></div>';
         }).join('') : '<p class="muted">No upcoming events.</p>';
       }
       function escapeHtml(value) {
