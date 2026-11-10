@@ -98,6 +98,7 @@ function App() {
   const [caldavUrl, setCaldavUrl] = useState(() => localStorage.getItem('orbit-caldav-url') || '')
   const [syncMessage, setSyncMessage] = useState('Local calendar ready')
   const [isSyncing, setIsSyncing] = useState(false)
+  const [touchStart, setTouchStart] = useState(null)
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate])
   const selectedKey = dateKey(selectedDate)
@@ -167,6 +168,24 @@ function App() {
   }, [caldavUrl])
 
   useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (showSettings || screen !== 'calendar') return
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+        changeMonth(-1)
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault()
+        changeMonth(1)
+      } else if (event.key.toLowerCase() === 't') {
+        event.preventDefault()
+        jumpToToday()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [screen, showSettings])
+
+  useEffect(() => {
     const refreshFromOtherTab = (event) => {
       if (event.key !== 'orbit-events' || !event.newValue) return
       try {
@@ -179,6 +198,17 @@ function App() {
     window.addEventListener('storage', refreshFromOtherTab)
     return () => window.removeEventListener('storage', refreshFromOtherTab)
   }, [])
+
+  function handleTouchStart(event) {
+    setTouchStart(event.changedTouches[0].clientX)
+  }
+
+  function handleTouchEnd(event) {
+    if (touchStart === null || screen !== 'calendar' || showSettings) return
+    const distance = event.changedTouches[0].clientX - touchStart
+    if (Math.abs(distance) >= 55) changeMonth(distance > 0 ? -1 : 1)
+    setTouchStart(null)
+  }
 
   function changeMonth(offset) {
     setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1))
@@ -227,7 +257,7 @@ function App() {
     <main className="app-shell">
       <div className="ambient ambient-left" />
       <div className="ambient ambient-right" />
-      <section className="app-frame">
+      <section className="app-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <header className="topbar">
           <div>
             <p className="eyebrow">ORBIT / GLANCE MODE</p>
@@ -294,9 +324,9 @@ function App() {
                 <button className="danger-action" onClick={deleteEvents} disabled={!selectedEvents.length}>Delete</button>
               </div>
             </section>
-            <div className="glance-footer">
-              <span>← → navigate</span>
-              <span>Enter select</span>
+            <div className="glance-footer" aria-live="polite">
+              <span>Swipe or ← → month</span>
+              <span>T = today</span>
               <button className="sync-link" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'syncing…' : '↻ sync now'}
               </button>

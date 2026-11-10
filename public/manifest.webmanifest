@@ -1,0 +1,9 @@
+{
+  "name": "Orbit Calendar",
+  "short_name": "Orbit",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#020613",
+  "theme_color": "#06101f",
+  "description": "A glance-first calendar web app for supported Meta display environments."
+}

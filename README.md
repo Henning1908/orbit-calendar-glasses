@@ -49,3 +49,5 @@ Most authenticated CalDAV collections return WebDAV XML and do not allow browser
 The project is intentionally the **web-app option**, not a native Android application or an APK. The calendar is displayed by opening the deployed site in a browser environment supported by the glasses. The web app cannot use Meta's native Device Access Toolkit directly, so native-only capabilities such as direct device pairing, background delivery, or reading DAVx5's Android provider are outside this repository's scope.
 
 The UI is designed to remain readable on a narrow display: high contrast, large type, compact event cards, and no dependency on hover interactions.
+
+On supported Meta display web-app environments, open `https://orbit-calendar-glasses.onrender.com/`. Month navigation works with swipe gestures, left/right keys, and the visible navigation buttons. A normal website still cannot access a logged-in DAVx5 account on Android.

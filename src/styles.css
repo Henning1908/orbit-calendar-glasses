@@ -17,6 +17,7 @@
 body { margin: 0; min-width: 320px; }
 button, input { font: inherit; }
 button { cursor: pointer; color: inherit; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--cyan); outline-offset: 3px; }
 
 .app-shell {
   min-height: 100vh;
@@ -39,6 +40,7 @@ button { cursor: pointer; color: inherit; }
   background: linear-gradient(160deg, rgba(11, 30, 52, .94), rgba(3, 10, 23, .95));
   border: 1px solid rgba(146, 174, 207, .25);
   box-shadow: 0 24px 80px rgba(0, 0, 0, .35);
+  touch-action: pan-y;
 }
 
 .topbar { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 12px 16px; }
@@ -109,4 +111,32 @@ input:focus { border-color: var(--cyan); }
   .day-cell { min-height: 48px; border-radius: 13px; font-size: 1.1rem; }
   .glance-footer { flex-wrap: wrap; }
   .sync-state { width: 100%; text-align: left; }
+}
+
+@media (max-width: 700px), (max-height: 700px) {
+  .app-shell { display: block; overflow: auto; }
+  .app-frame {
+    width: 100%;
+    min-height: 100svh;
+    padding: 10px 12px 14px;
+    border: 0;
+    box-shadow: none;
+  }
+  .topbar { padding: 6px 4px 10px; }
+  h1 { font-size: clamp(1.8rem, 9vw, 2.5rem); }
+  .subheading { font-size: .86rem; }
+  .icon-button { width: 46px; height: 46px; }
+  .toolbar { gap: 7px; padding-bottom: 8px; }
+  .toolbar button { min-height: 44px; border-radius: 12px; }
+  .weekdays { gap: 4px; padding-bottom: 5px; font-size: .72rem; }
+  .calendar-grid { gap: 4px; }
+  .day-cell { min-height: 43px; border-radius: 11px; font-size: 1.05rem; }
+  .today-dot { bottom: 4px; width: 4px; height: 4px; }
+  .day-cell em { top: 3px; right: 4px; width: 13px; height: 13px; font-size: 8px; }
+  .detail-card { margin-top: 8px; padding: 12px 11px 10px; border-radius: 16px; }
+  .detail-card h2 { font-size: 1.15rem; }
+  .event-list { margin: 8px 0; }
+  .event-pill { padding: 6px 9px; font-size: .78rem; }
+  .actions button { min-height: 42px; }
+  .glance-footer { margin-top: 10px; font-size: .68rem; }
 }
