@@ -3,7 +3,7 @@
   "name": "Orbit Calendar",
   "description": "Your calendar at a glance on Meta display glasses.",
   "appearance": {
-    "theme_color": "#081525",
+    "theme_color": "#66D8FF",
     "icon": {
       "src": "/images/meta-display-apps-wearables-mask-512.png",
       "type": "monochrome"

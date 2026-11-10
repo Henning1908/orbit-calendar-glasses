@@ -323,7 +323,7 @@ function App() {
       <section className="app-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <header className="topbar">
           <div>
-            <div className="brand-kicker"><img className="brand-logo" src="/images/meta-display-apps-app-icon-v2.svg" alt="Meta Display Apps" /><p className="eyebrow">META DISPLAY APPS / ORBIT</p></div>
+            <div className="brand-kicker"><img className="brand-logo" src="/images/meta-display-apps-logo.svg" alt="Meta Display Apps" /><p className="eyebrow">META DISPLAY APPS / ORBIT</p></div>
             <h1>{screen === 'calendar' ? monthLabel : 'New event'}</h1>
             <p className="subheading">
               {screen === 'calendar' ? '2026—2036 planner' : formatLongDate(selectedDate)}

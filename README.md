@@ -10,7 +10,7 @@ A calm, glance-first calendar for the web and Meta display glasses. Connect a re
 
 [Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Set up the glasses](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
 
-[English guide](docs/USER_GUIDE.md) · [Anleitung auf Deutsch](docs/USER_GUIDE.de.md) · [Deployment](docs/DEPLOYMENT.md) · [Buy me a coffee](https://gofund.me/89190630b)
+[English guide](docs/USER_GUIDE.md) · [Anleitung auf Deutsch](docs/USER_GUIDE.de.md) · [Deployment](docs/DEPLOYMENT.md) · [Veröffentlichungs-Checkliste](docs/PUBLIC_RELEASE_CHECKLIST.de.md) · [Buy me a coffee](https://gofund.me/89190630b)
 
 </div>
 
@@ -70,5 +70,5 @@ For a production build and Cloudflare deployment, follow [docs/DEPLOYMENT.md](do
 
 ## License
 
-This repository currently has no open-source license. Unless the owner adds one, all rights are reserved; public access to the hosted app does not grant permission to reuse or redistribute the source code.
+This repository currently has no open-source license. Unless the owner adds one, all rights are reserved. A public GitHub repository may still be viewed and forked on GitHub under GitHub's terms; that does not grant a general license to reuse or redistribute the source code elsewhere.
 
