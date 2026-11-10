@@ -7,7 +7,7 @@ Orbit is a glance-first calendar inspired by the supplied 10-year planner refere
 - Large, glanceable month grid with keyboard-friendly navigation
 - Local event presets and browser persistence
 - ICS export for importing the calendar into DAVx5
-- CalDAV collection URL field and setup guidance for DAVx5
+- DAVx5 handoff link, manual sync, and automatic refresh on focus/visibility/online events
 - No credentials are stored by the web app
 
 ## Development
@@ -19,6 +19,6 @@ npm run dev
 
 ## DAVx5 workflow
 
-DAVx5 is the Android CalDAV/CardDAV sync client, so the browser app does not authenticate directly against it. Configure your CalDAV provider in DAVx5, then use Orbit's **Export .ics** action to import plans into that calendar. The saved collection URL is only a local reminder for the account/collection you use.
+DAVx5 is the Android CalDAV/CardDAV sync client. Use **Open DAVx5** to hand the saved collection URL to the Android app, then let DAVx5 synchronize the account. Orbit automatically tries to reload the configured URL on startup, every 60 seconds, and whenever the page regains focus, becomes visible, or comes back online. **Load DAVx5 updates** also triggers an immediate reload.
 
-For production, the next integration step is a small same-origin CalDAV proxy or serverless function. It should keep provider credentials server-side and expose only the user's authenticated calendar collection to the app.
+The browser can only import updates directly when the URL returns an ICS feed and permits CORS. A standard authenticated CalDAV collection usually returns WebDAV XML rather than ICS, so production should add a same-origin CalDAV proxy/serverless function. It must keep provider credentials server-side and expose only the user's authenticated calendar collection to the app. ICS export remains available as a safe fallback.

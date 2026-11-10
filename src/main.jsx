@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createRoot } from 'react-dom/client'
 import './styles.css'
 
@@ -64,6 +64,24 @@ function makeIcs(events) {
   return rows.join('\r\n')
 }
 
+function unescapeIcs(value) {
+  return value.replace(/\\n/gi, '\n').replace(/\\([\\;,])/g, '$1')
+}
+
+function parseIcs(text) {
+  const parsed = {}
+  const blocks = text.split(/BEGIN:VEVENT/i).slice(1)
+  blocks.forEach((block) => {
+    const dateMatch = block.match(/(?:^|\r?\n)DTSTART(?:;[^:]*)?:([0-9]{8})/i)
+    const titleMatch = block.match(/(?:^|\r?\n)SUMMARY(?:;[^:]*)?:([^\r\n]*)/i)
+    if (!dateMatch || !titleMatch) return
+    const date = `${dateMatch[1].slice(0, 4)}-${dateMatch[1].slice(4, 6)}-${dateMatch[1].slice(6, 8)}`
+    const title = unescapeIcs(titleMatch[1].trim())
+    parsed[date] = [...(parsed[date] || []), { title, type: 'synced', icon: '↻' }]
+  })
+  return parsed
+}
+
 function App() {
   const today = useMemo(() => new Date(), [])
   const [monthDate, setMonthDate] = useState(new Date(today.getFullYear(), today.getMonth(), 1))
@@ -79,11 +97,88 @@ function App() {
   const [showSettings, setShowSettings] = useState(false)
   const [caldavUrl, setCaldavUrl] = useState(() => localStorage.getItem('orbit-caldav-url') || '')
   const [syncMessage, setSyncMessage] = useState('Local calendar ready')
+  const [isSyncing, setIsSyncing] = useState(false)
 
   const days = useMemo(() => buildCalendarDays(monthDate), [monthDate])
   const selectedKey = dateKey(selectedDate)
   const selectedEvents = events[selectedKey] || []
   const monthLabel = `${MONTH_NAMES[monthDate.getMonth()]} ${monthDate.getFullYear()}`
+
+  async function syncFromCalendarFeed() {
+    if (!caldavUrl) {
+      setSyncMessage('Add a CalDAV or ICS URL first')
+      return
+    }
+    setIsSyncing(true)
+    try {
+      const response = await fetch(caldavUrl, { cache: 'no-store', headers: { Accept: 'text/calendar, text/plain, application/xml' } })
+      if (!response.ok) throw new Error(`HTTP ${response.status}`)
+      const body = await response.text()
+      if (!body.includes('BEGIN:VCALENDAR')) {
+        throw new Error('The server did not return an ICS feed')
+      }
+      const remoteEvents = parseIcs(body)
+      setEvents((current) => {
+        const localOnly = Object.fromEntries(
+          Object.entries(current).map(([date, dayEvents]) => [
+            date,
+            dayEvents.filter((event) => event.type !== 'synced'),
+          ]).filter(([, dayEvents]) => dayEvents.length),
+        )
+        const next = { ...localOnly, ...remoteEvents }
+        localStorage.setItem('orbit-events', JSON.stringify(next))
+        return next
+      })
+      setSyncMessage(`Updated from DAVx5 · ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`)
+    } catch (error) {
+      setSyncMessage(`Sync unavailable: ${error.message}`)
+    } finally {
+      setIsSyncing(false)
+    }
+  }
+
+  function openDavx5() {
+    if (!caldavUrl) {
+      setSyncMessage('Save a CalDAV URL before opening DAVx5')
+      return
+    }
+    const deepLink = `davx5://${caldavUrl.replace(/^https?:\/\//, '')}`
+    window.location.href = deepLink
+  }
+
+  useEffect(() => {
+    if (!caldavUrl) return undefined
+    syncFromCalendarFeed()
+    const interval = window.setInterval(syncFromCalendarFeed, 60_000)
+    const refresh = () => {
+      if (document.visibilityState !== 'hidden') syncFromCalendarFeed()
+    }
+    window.addEventListener('focus', refresh)
+    window.addEventListener('pageshow', refresh)
+    document.addEventListener('visibilitychange', refresh)
+    window.addEventListener('online', refresh)
+    return () => {
+      window.clearInterval(interval)
+      window.removeEventListener('focus', refresh)
+      window.removeEventListener('pageshow', refresh)
+      document.removeEventListener('visibilitychange', refresh)
+      window.removeEventListener('online', refresh)
+    }
+  }, [caldavUrl])
+
+  useEffect(() => {
+    const refreshFromOtherTab = (event) => {
+      if (event.key !== 'orbit-events' || !event.newValue) return
+      try {
+        setEvents(JSON.parse(event.newValue))
+        setSyncMessage('Updated from another calendar tab')
+      } catch {
+        setSyncMessage('Calendar update could not be loaded')
+      }
+    }
+    window.addEventListener('storage', refreshFromOtherTab)
+    return () => window.removeEventListener('storage', refreshFromOtherTab)
+  }, [])
 
   function changeMonth(offset) {
     setMonthDate((current) => new Date(current.getFullYear(), current.getMonth() + offset, 1))
@@ -202,6 +297,9 @@ function App() {
             <div className="glance-footer">
               <span>← → navigate</span>
               <span>Enter select</span>
+              <button className="sync-link" onClick={syncFromCalendarFeed} disabled={isSyncing}>
+                {isSyncing ? 'syncing…' : '↻ sync now'}
+              </button>
               <span className="sync-state">{syncMessage}</span>
             </div>
           </>
@@ -247,9 +345,15 @@ function App() {
               <button className="primary-action" onClick={saveCalDav}>Save connection</button>
               <button className="secondary-action" onClick={exportCalendar}>Export .ics</button>
             </div>
+            <div className="settings-actions">
+              <button className="secondary-action" onClick={syncFromCalendarFeed} disabled={isSyncing}>
+                {isSyncing ? 'Loading…' : 'Load DAVx5 updates'}
+              </button>
+              <button className="secondary-action" onClick={openDavx5}>Open DAVx5</button>
+            </div>
             <div className="davx5-note">
               <strong>DAVx5 setup</strong>
-              <span>In DAVx5, add your CalDAV account, enable calendar sync, then use the collection URL above. No credentials are stored by this app.</span>
+              <span>Open DAVx5 to add the CalDAV account. Orbit reloads on focus, when the page becomes visible again, when the device reconnects, and every 60 seconds. A browser can only load updates when the URL returns an ICS feed and allows CORS; standard CalDAV servers often need a same-origin proxy.</span>
             </div>
           </section>
         </div>

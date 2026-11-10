@@ -77,8 +77,10 @@ h2 { font-size: 1.55rem; letter-spacing: -.04em; }
 .primary-action { border: 1px solid var(--mint); background: rgba(12, 72, 65, .25); }
 .danger-action { border: 1px solid var(--rose); background: transparent; }
 button:disabled { opacity: .38; cursor: not-allowed; }
-.glance-footer { display: flex; justify-content: space-between; gap: 10px; color: #b2c1d7; font-size: .76rem; margin-top: 18px; }
+.glance-footer { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: #b2c1d7; font-size: .76rem; margin-top: 18px; }
 .sync-state { color: var(--mint); text-align: right; }
+.sync-link { border: 0; padding: 0; background: transparent; color: var(--cyan); font-size: .76rem; }
+.sync-link:disabled { color: var(--muted); }
 
 .add-screen { padding: 14px 4px; }
 .preset-list { display: grid; gap: 10px; margin: 22px 0 14px; }
