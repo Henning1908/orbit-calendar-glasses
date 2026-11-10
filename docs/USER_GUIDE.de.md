@@ -27,7 +27,7 @@ Tippe auf **Send calendar to glasses**. Orbit prüft zuerst den Kalenderzugriff.
 
 ### 3. Kalender aktuell halten
 
-Lass die Brillenansicht geöffnet und die Brille mit dem Internet verbunden. Orbit lädt ungefähr jede Minute neue Termine. Beim erneuten Öffnen der Seite wird ebenfalls synchronisiert.
+Lass die Brillenansicht geöffnet und die Brille mit dem Internet verbunden. Orbit lädt ungefähr jede Minute neue Termine. Beim erneuten Öffnen der Seite wird ebenfalls synchronisiert. Die Brille zeigt die nächsten acht Termine ab heute chronologisch sortiert und mit Datum; vergangene Termine von heute werden ausgeblendet.
 
 Über **Disconnect** auf der Brillenansicht entfernst du die gespeicherte Serververbindung. Für eine erneute Verbindung koppelst du die Brille wieder.
 
@@ -64,3 +64,4 @@ Mit **Add plan** angelegte Pläne bleiben nur in diesem Browser gespeichert. **E
 | Die API ist nicht erreichbar | Öffne die gehostete Cloudflare-App, nicht eine lokale statische Vorschau. |
 
 Die Brillenansicht benötigt eine unterstützte Webansicht, JavaScript, lokalen Speicher und eine Internetverbindung. Die Kompatibilität hängt vom Gerät und Kalenderanbieter ab.
+
