@@ -7,6 +7,11 @@
     "icon": {
       "src": "/images/meta-display-apps-wearables-mask-512.png",
       "type": "monochrome"
+    },
+    "icon_background": {
+      "colors": ["#12505B", "#0C394A", "#0A263B", "#08111D"],
+      "stops": [0.0, 0.33, 0.66, 1.0],
+      "inner_glow_color": "#28D6A0"
     }
   }
 }
