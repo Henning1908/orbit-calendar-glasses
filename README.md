@@ -1,48 +1,29 @@
 # Orbit Calendar
 
-Orbit is a glance-first calendar web app for phone, desktop, and supported Meta display web environments.
+Orbit Calendar is a browser-based calendar with a glance-first layout for phones, desktops, and supported Meta display web environments.
 
-## Live app
+## Open the app
+
+Use the live app:
 
 <https://orbit-calendar-glasses.onrender.com/>
 
-The site is deployed as a Render Static Site from the `main` branch:
+No installation, Android Studio, APK, Meta developer account, or special credentials are required.
 
-- Build command: `npm ci && npm run build`
-- Publish directory: `dist`
+## Use the calendar
 
-## Features
+- Select a day to view its plans.
+- Use **‹**, **Today**, and **›** to move through the calendar.
+- Swipe left or right on touch devices to change month.
+- Use the menu button `☷` for calendar feed settings and ICS export.
+- Local plans are saved in the current browser.
 
-- High-contrast month calendar with large controls
-- Touch and swipe-friendly navigation
-- Keyboard navigation with `←`, `→`, and `T` for today
-- Local event presets stored in the browser
-- ICS export
-- Optional ICS feed refresh with automatic reload on focus, reconnect, visibility changes, and a 60-second interval
-- Responsive layout for narrow displays
+## Calendar updates
 
-## Local development
+Orbit can load an ICS calendar feed when the feed is available to the browser. Open `☷`, enter the feed URL, save it, and choose **Load updates**.
 
-```bash
-npm install
-npm run dev
-npm run build
-```
-
-## DAVx5
-
-The web app does not need Meta Developer credentials, an Android project, or an APK.
-
-A browser cannot directly reuse a DAVx5 login on an Android phone or read the phone's private Android Calendar Provider. To load updates in the web app, use an ICS feed that is reachable from the browser and allows CORS:
-
-See the complete step-by-step guide in [SETUP.md – ICS-Feed einrichten](SETUP.md#3-ics-feed-einrichten).
-
-The feed is refreshed on startup, every 60 seconds, and when the page becomes active again. A normal private CalDAV collection usually cannot be loaded directly from a browser; it requires a server-side proxy or a CORS-enabled ICS endpoint.
+The feed must be a browser-accessible ICS URL and allow CORS. A normal private DAVx5 login cannot be used directly by a website.
 
 ## Meta display glasses
 
-Open the live URL in a browser or web-app environment supported by the specific glasses:
-
-<https://orbit-calendar-glasses.onrender.com/>
-
-The web app uses standard HTML, CSS, and JavaScript. It does not use the Meta Wearables Device Access Toolkit and therefore does not require `mwdat_application_id`, `mwdat_client_token`, GitHub Actions secrets, Bluetooth permissions, or Android Studio.
+Open the live URL in a browser or web-app environment supported by your glasses. The app uses large controls, high contrast, and touch-friendly navigation.
