@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://orbit-calendar.henning-orbit-calendar.workers.dev/sitemap.xml
+
