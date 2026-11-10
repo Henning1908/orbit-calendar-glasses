@@ -6,14 +6,18 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:cloudflare": "npm run build && node scripts/generate-cloudflare-assets.js",
+    "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy",
     "preview": "vite preview",
     "start": "node server.js"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^6.0.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "vite": "^6.0.5"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "wrangler": "^4.160.0"
+  }
 }

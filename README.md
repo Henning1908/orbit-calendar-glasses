@@ -1,33 +1,38 @@
 # Orbit Calendar
 
-Orbit Calendar is a browser-based calendar with a glance-first layout for phones, desktops, and supported Meta display web environments.
+Orbit Calendar runs as one Cloudflare Worker. The Worker serves the calendar website and the API used by the Meta display glasses; Cloudflare D1 stores device pairings and encrypted CalDAV credentials.
 
-## Open the app
+## Live app
 
-Use the live app:
+- Calendar: <https://orbit-calendar.henning-orbit-calendar.workers.dev/>
+- Meta display glasses: <https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html>
 
-<https://orbit-calendar-glasses.onrender.com/>
+## Calendar sync
 
-No installation, Android Studio, APK, Meta developer account, or special credentials are required.
+The browser can sync a public ICS feed. For a private calendar, pair the glasses from the app settings using the CalDAV server URL, username, and an app password. Orbit checks that connection on the server and stores its credentials encrypted with AES-GCM; the glasses receive only a device token and calendar events. The glasses page requests updated events every 60 seconds and when it becomes active again.
 
-## Use the calendar
+## Local development
 
-- Select a day to view its plans.
-- Use **‹**, **Today**, and **›** to move through the calendar.
-- Swipe left or right on touch devices to change month.
-- Use the menu button `☷` for calendar feed settings and ICS export.
-- Local plans are saved in the current browser.
+```sh
+npm install
+npm run dev
+```
 
-## Calendar updates
+The local Vite preview serves the UI only. The production API runs in the Cloudflare Worker.
 
-Orbit can load an ICS calendar feed when the feed is available to the browser. Open `☷`, enter the feed URL, save it, and choose **Load updates**.
+## Cloudflare deployment
 
-The feed must be a browser-accessible ICS URL and allow CORS. A normal private DAVx5 login cannot be used directly by a website.
+This repository is configured for the existing Cloudflare Worker and D1 database. Install dependencies and authenticate Wrangler, then set the encryption secret once:
 
-## Meta display glasses
+```sh
+npm install
+npx wrangler login
+npx wrangler secret put ORBIT_STORAGE_KEY
+npm run deploy:cloudflare
+```
 
-Open the glasses view at:
+Use a long random value for `ORBIT_STORAGE_KEY` and keep it stable after users connect calendars. Never commit it. Database schema changes live in `migrations/` and are applied with `npx wrangler d1 migrations apply orbit-calendar --remote`.
 
-<https://orbit-calendar-glasses.onrender.com/glasses.html>
+## Free tier
 
-It shows a six-digit code. On your phone or PC, open the main app once, choose `☷`, enter the CalDAV server URL, username, password/app-password, and the code, then choose **Send calendar to glasses**. Orbit stores the connection encrypted on its persistent service storage; the glasses keep only a device token and refresh automatically whenever they have internet. An ICS URL remains available for read-only feeds.
+The app uses Workers and D1 without a paid Render service. Cloudflare's free limits apply: Workers has a daily request limit, and D1 has daily row read/write and storage limits. Requests stop working when a free limit is reached until it resets, so usage must stay within those limits to remain free. See Cloudflare's [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) and [D1 pricing and included usage](https://developers.cloudflare.com/d1/platform/pricing/).

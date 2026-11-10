@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "orbit-calendar",
+  "main": "src/worker.js",
+  "compatibility_date": "2026-11-10",
+  "workers_dev": true,
+  "preview_urls": false,
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "orbit-calendar",
+      "database_id": "50a2af69-95ec-466c-b684-092c52f61534",
+      "migrations_dir": "migrations"
+    }
+  ]
+}
