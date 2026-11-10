@@ -4,10 +4,10 @@ Diese Liste hilft bei der Vorbereitung; sie ist keine individuelle Rechtsberatun
 
 ## Was bisher im Repository steht
 
-- Das Repository enthält derzeit keine Lizenz. Das entspricht der bisherigen Entscheidung: alle Rechte vorbehalten. GitHub weist darauf hin, dass bei einem öffentlichen Repository andere GitHub-Nutzer es ansehen und forken dürfen; ohne Lizenz erhalten sie dadurch keine allgemeine Erlaubnis, den Code außerhalb von GitHub weiterzuverwenden. [GitHub: Licensing a repository](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/licensing-a-repository)
+- Das Repository verwendet jetzt die MIT-Lizenz. Andere dürfen den Code verwenden, ändern und weitergeben, auch kommerziell, müssen aber Copyright- und Lizenzhinweis in Kopien oder wesentlichen Teilen beibehalten. Der Credit lautet derzeit **Henning1908**. [LICENSE](../LICENSE)
 - Vor dem Wechsel auf öffentlich die gesamte Commit-Historie auf Zugangsschlüssel, Passwörter, private Kalenderadressen und persönliche Daten prüfen. Eine Datei nur im aktuellen Stand zu löschen entfernt frühere Commits nicht. Falls ein echter Schlüssel jemals eingecheckt wurde, ihn zuerst beim Anbieter widerrufen und ersetzen.
 - Die Cloudflare-Verschlüsselungsvariable liegt außerhalb des Repositories. Die lokale Datei `.env.cloudflare-secret` ist ignoriert. Niemals echte Kalenderdaten oder Zugangsdaten in Beispielen, Screenshots, Issues oder Commits verwenden.
-- Falls später eine Open-Source-Lizenz gewünscht ist, muss sie bewusst ausgewählt und im Repository ergänzt werden. Ohne Lizenz ist das Projekt nicht als Open Source freigegeben.
+- Die MIT-Lizenz deckt nur Rechte ab, die der Rechteinhaber selbst vergeben darf. Vor dem Release prüfen, ob alle enthaltenen Logos, Bilder, Texte und Abhängigkeiten entsprechend weitergegeben werden dürfen. Die MIT-Lizenz überträgt keine Markenrechte.
 - Vor einem öffentlichen Release auch die Lizenzen gebündelter npm-Abhängigkeiten und der verwendeten Bild- und Schriftdateien prüfen und erforderliche Hinweise beibehalten.
 
 ## Vor weiteren Nutzerkonten im gehosteten Dienst
@@ -37,7 +37,7 @@ Ein öffentlicher Quellcode-Upload ist nicht dasselbe wie der Betrieb eines Kale
 ## Freigabe-Check
 
 - [ ] Entscheiden, ob nur der Quellcode oder auch der gehostete Dienst öffentlich werden soll.
-- [ ] Sichtbarkeit und Lizenzwahl bewusst festlegen; derzeit ist das Repository privat und ohne Lizenz.
+- [ ] Repo-Sichtbarkeit bewusst festlegen; MIT-Lizenz und Credit-Hinweis sind vorbereitet.
 - [ ] Commit-Historie und veröffentlichte Assets auf fremde Rechte, Schlüssel und persönliche Daten prüfen.
 - [ ] Datenschutzhinweise und Datenlöschung für echte Nutzer festlegen.
 - [ ] Impressumspflicht anhand der tatsächlichen Betriebs- und Finanzierungsform prüfen.
