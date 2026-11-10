@@ -363,8 +363,6 @@ async function route(request, env) {
       if (!device) return json({ error: 'Brille noch nicht gekoppelt.' }, 401)
       const state = await decrypt(device.encrypted_data, env.ORBIT_STORAGE_KEY)
       const events = await fetchSource(state.source)
-      await env.DB.prepare('UPDATE devices SET updated_at = ? WHERE device_id = ?')
-        .bind(Date.now(), url.searchParams.get('deviceId')).run()
       return json({ events, updatedAt: Date.now() })
     }
 
@@ -406,3 +404,4 @@ export default {
 function pathExtension(pathname) {
   return /\.[a-z0-9]+$/i.test(pathname)
 }
+
