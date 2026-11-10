@@ -9,6 +9,7 @@ const contentTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.ico': 'image/x-icon',
+  '.png': 'image/png',
   '.js': 'text/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
   '.svg': 'image/svg+xml',
@@ -24,10 +25,14 @@ async function collect(directory, prefix = '') {
       Object.assign(files, await collect(absolute, relative))
       continue
     }
-    const body = await readFile(absolute, 'utf8')
+    const isPng = path.extname(entry.name) === '.png'
+    const body = isPng
+      ? (await readFile(absolute)).toString('base64')
+      : await readFile(absolute, 'utf8')
     files[`/${relative}`] = {
       body,
       contentType: contentTypes[path.extname(entry.name)] || 'application/octet-stream',
+      ...(isPng ? { encoding: 'base64' } : {}),
     }
   }
   return files
