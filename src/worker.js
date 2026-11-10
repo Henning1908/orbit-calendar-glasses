@@ -390,7 +390,10 @@ export default {
       asset = staticAssets[assetPath]
     }
     if (!asset) return new Response('Not found', { status: 404 })
-    return new Response(asset.body, {
+    const body = asset.encoding === 'base64'
+      ? Uint8Array.from(atob(asset.body), (character) => character.charCodeAt(0))
+      : asset.body
+    return new Response(body, {
       headers: {
         'Content-Type': asset.contentType,
         'Cache-Control': assetPath.startsWith('/assets/')
