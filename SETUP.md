@@ -1,95 +1,90 @@
-# Orbit Calendar – DAVx5 und Meta Display Setup
+# Orbit Calendar – Web-App-Setup
 
-## 1. DAVx5 auf dem Telefon einrichten
+Orbit ist die reine Web-App-Variante. Für die Veröffentlichung und Nutzung brauchst du keine Meta-Developer-Secrets, keine Android-App, keine APK und kein Android Studio.
 
-1. DAVx5 installieren.
-2. Dein CalDAV-Konto in DAVx5 hinzufügen und anmelden.
-3. Die gewünschten Kalender aktivieren.
-4. Eine manuelle Synchronisierung auslösen.
-5. In der normalen Android-Kalender-App prüfen, dass die Termine sichtbar sind.
+## 1. Auf Render veröffentlichen
 
-DAVx5 synchronisiert die Termine in den gemeinsamen Android Calendar Provider. Orbit braucht deine DAVx5-Zugangsdaten nicht.
-
-## 2. Orbit auf dem Telefon installieren
-
-Android Studio ist für die normale Nutzung nicht erforderlich:
-
-1. Repository öffnen: <https://github.com/Henning1908/orbit-calendar-glasses>
-2. **Actions → Build Android APK** öffnen.
-3. Den letzten erfolgreichen Lauf auswählen.
-4. Das Artifact `orbit-calendar-debug-apk` herunterladen.
-5. ZIP entpacken und `androidApp-debug.apk` installieren.
-6. Falls Android fragt, die Installation aus dieser Quelle erlauben.
-
-Bei jedem Push auf `main` wird eine neue APK gebaut. Die Web-App auf Render wird weiterhin automatisch aus `main` veröffentlicht.
-
-## 3. Orbit mit DAVx5 und der Brille verbinden
-
-1. Orbit auf dem Telefon öffnen.
-2. **Allow calendar access** bestätigen.
-3. Bluetooth-Zugriff erlauben.
-4. Prüfen, dass DAVx5 bereits synchronisierte Termine in der Android-Kalender-App anzeigt.
-5. In Orbit **Connect Meta display glasses** drücken.
-6. Die Meta-Registrierung bestätigen, falls sie angezeigt wird.
-7. Brille auswählen beziehungsweise die automatisch gefundene displayfähige Brille bestätigen.
-
-Danach läuft die Verbindung so:
+1. In Render **New → Static Site** wählen.
+2. Das private Repository `Henning1908/orbit-calendar-glasses` verbinden.
+3. Branch `main` auswählen.
+4. Diese Werte setzen:
 
 ```text
-DAVx5 aktualisiert den Android-Kalender
-        ↓
-Orbit erkennt Calendar-Provider-Änderungen
-        ↓
-Orbit lädt die nächsten Termine neu
-        ↓
-Orbit sendet sie an die Meta Display glasses
+Build command:     npm ci && npm run build
+Publish directory:  dist
 ```
 
-Die Android-App registriert einen `ContentObserver`. Änderungen durch DAVx5 werden dadurch automatisch erkannt. Die nächsten drei Termine werden an die Brille gesendet. Die App muss für eine zuverlässige Hintergrundaktualisierung geöffnet bleiben; Android kann Hintergrundprozesse sonst pausieren.
-
-## 4. Meta-Zugangsdaten für den APK-Build
-
-Für die Meta Wearables Device Access Toolkit-Integration werden diese Werte aus dem Meta Developer Center benötigt:
-
-```text
-mwdat_application_id=DEINE_APPLICATION_ID
-mwdat_client_token=DEIN_CLIENT_TOKEN
-```
-
-Lokal gehören sie in `androidApp/local.properties` und dürfen nicht committed werden. Für GitHub Actions sind Repository-Secrets vorgesehen:
-
-```text
-MWDAT_APPLICATION_ID
-MWDAT_CLIENT_TOKEN
-```
-
-Ohne diese Secrets kann der Android-Code eventuell gebaut werden, aber die echte Registrierung der Brille funktioniert nicht.
-
-## 5. Render-Webseite
-
-Die Web-App ist die sichtbare Browser-/Preview-Oberfläche:
+Die Live-Seite ist:
 
 <https://orbit-calendar-glasses.onrender.com/>
 
-Render ist nicht die Verbindung zum Telefon. Die echte DAVx5-zu-Brille-Verbindung läuft über die Android-App, weil nur sie auf den Android Calendar Provider und das Meta Wearables SDK zugreifen kann.
+Jeder Push auf `main` startet automatisch einen neuen Render-Deploy.
 
-## 6. Fehlerbehebung
+## 2. Web-App auf dem Telefon oder der Brille öffnen
 
-### Keine Termine in Orbit
+Öffne die Live-URL im Browser:
 
-- DAVx5 manuell synchronisieren.
-- In der Android-Kalender-App prüfen, ob der Kalender sichtbar ist.
-- Orbit die Kalenderberechtigung geben.
-- In Orbit **Refresh from DAVx5 calendars** drücken.
+```text
+https://orbit-calendar-glasses.onrender.com/
+```
 
-### Brille wird nicht gefunden
+Ob die URL direkt auf deiner Meta Display glasses geöffnet werden kann, hängt vom konkreten Modell und dessen Web-App-/Browser-Unterstützung ab. Die Web-App selbst benötigt keine Meta-Zugangsdaten.
 
-- Brille einschalten und mit dem Telefon koppeln.
-- Bluetooth aktivieren.
-- Meta-App und Brillen-Firmware aktualisieren.
-- Meta-Secrets prüfen.
-- Orbit erneut öffnen und **Connect Meta display glasses** drücken.
+Für kleine Displays bietet Orbit:
 
-### Web-App zeigt keine DAVx5-Termine
+- große, kontrastreiche Schaltflächen
+- Wischen zum Wechseln des Monats
+- `←` und `→` für den vorherigen/nächsten Monat
+- `T` für den heutigen Tag
+- sichtbare Fokusrahmen für Tastatur- oder Assistenzsteuerung
 
-Das ist erwartbar: Die Render-Webseite kann keine private DAVx5-Anmeldung oder den Android Calendar Provider lesen. Dafür die Android-App verwenden.
+## 3. DAVx5 mit der Web-App verwenden
+
+Die Web-App kann keine bestehende DAVx5-Anmeldung auf dem Telefon übernehmen. Sie kann auch nicht direkt den privaten Android Calendar Provider lesen.
+
+### ICS-Feed laden
+
+Wenn dein Kalenderdienst eine ICS-Feed-URL bereitstellt:
+
+1. Orbit öffnen.
+2. Oben rechts `☷` öffnen.
+3. Die ICS-Feed-URL bei **CalDAV collection URL** eintragen.
+4. **Save connection** klicken.
+5. **Load DAVx5 updates** klicken.
+
+Für automatische Updates muss die URL:
+
+- direkt eine ICS-Datei zurückgeben,
+- ohne zusätzliche Browser-Anmeldung erreichbar sein,
+- CORS für die Render-Domain erlauben.
+
+Orbit lädt beim Start, alle 60 Sekunden sowie bei Fokus-, Sichtbarkeits- und Online-Änderungen neu.
+
+### ICS exportieren
+
+Lokale Termine kannst du über **Export .ics** exportieren und danach in einen Kalenderdienst importieren, den DAVx5 synchronisiert.
+
+### Private CalDAV-Konten
+
+Eine normale private CalDAV-URL funktioniert meistens nicht direkt im Browser. Dafür brauchst du einen eigenen serverseitigen Proxy oder einen CORS-fähigen ICS-Endpunkt:
+
+```text
+Orbit im Browser → eigener Proxy/ICS-Endpunkt → CalDAV-Server
+```
+
+Die Zugangsdaten dürfen nur auf dem Server liegen und niemals in der Web-App oder in öffentlichen Logs.
+
+## 4. Nicht erforderlich
+
+Für diese Web-App brauchst du nicht:
+
+- `mwdat_application_id`
+- `mwdat_client_token`
+- `MWDAT_APPLICATION_ID`
+- `MWDAT_CLIENT_TOKEN`
+- Android Studio
+- Android SDK
+- eine APK
+- eine native Meta-Wearables-Integration
+
+Die Web-App wird vollständig über Render ausgeliefert.

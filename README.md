@@ -1,25 +1,27 @@
 # Orbit Calendar
 
-Orbit has two parts:
+Orbit is a glance-first calendar web app for phone, desktop, and supported Meta display web environments.
 
-- a glance-first web app for the calendar UI and Render preview
-- an Android companion that reads calendars synchronized by DAVx5 and sends them to Meta Display glasses
+## Live app
 
-## Data flow
+<https://orbit-calendar-glasses.onrender.com/>
 
-```text
-DAVx5 on phone
-      ↓ CalDAV sync
-Android Calendar Provider
-      ↓ READ_CALENDAR
-Orbit Android companion
-      ↓ Meta Wearables Device Access Toolkit
-Meta Display glasses
-```
+The site is deployed as a Render Static Site from the `main` branch:
 
-DAVx5 remains the only component that stores the CalDAV login. Orbit does not ask for or store your DAVx5 password.
+- Build command: `npm ci && npm run build`
+- Publish directory: `dist`
 
-## Web app
+## Features
+
+- High-contrast month calendar with large controls
+- Touch and swipe-friendly navigation
+- Keyboard navigation with `←`, `→`, and `T` for today
+- Local event presets stored in the browser
+- ICS export
+- Optional ICS feed refresh with automatic reload on focus, reconnect, visibility changes, and a 60-second interval
+- Responsive layout for narrow displays
+
+## Local development
 
 ```bash
 npm install
@@ -27,19 +29,23 @@ npm run dev
 npm run build
 ```
 
-The web preview is published at <https://orbit-calendar-glasses.onrender.com/>. It is useful for the calendar UI, local events, ICS export, and optional CORS-enabled ICS feeds. It cannot itself read the Android Calendar Provider or keep a phone-to-glasses connection in the background.
+## DAVx5
 
-## Android companion
+The web app does not need Meta Developer credentials, an Android project, or an APK.
 
-The `androidApp` module is the actual phone connection:
+A browser cannot directly reuse a DAVx5 login on an Android phone or read the phone's private Android Calendar Provider. To load updates in the web app, use an ICS feed that is reachable from the browser and allows CORS:
 
-1. Install and sign in to DAVx5 on the phone.
-2. Let DAVx5 synchronize the desired calendars.
-3. Install the Orbit debug APK from the GitHub Actions artifact.
-4. Allow calendar and Bluetooth permissions.
-5. Press **Connect Meta display glasses**.
-6. Orbit reads the Android Calendar Provider and republishes changes to the glasses automatically.
+1. Open the settings button `☷`.
+2. Enter the ICS feed URL.
+3. Choose **Save connection**.
+4. Choose **Load DAVx5 updates**.
 
-Builds are produced by `.github/workflows/build-android.yml`. Android Studio is only needed for local development; normal users can download the APK artifact from GitHub Actions.
+The feed is refreshed on startup, every 60 seconds, and when the page becomes active again. A normal private CalDAV collection usually cannot be loaded directly from a browser; it requires a server-side proxy or a CORS-enabled ICS endpoint.
 
-See [SETUP.md](SETUP.md) for the complete setup.
+## Meta display glasses
+
+Open the live URL in a browser or web-app environment supported by the specific glasses:
+
+<https://orbit-calendar-glasses.onrender.com/>
+
+The web app uses standard HTML, CSS, and JavaScript. It does not use the Meta Wearables Device Access Toolkit and therefore does not require `mwdat_application_id`, `mwdat_client_token`, GitHub Actions secrets, Bluetooth permissions, or Android Studio.

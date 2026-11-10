@@ -138,15 +138,6 @@ function App() {
     }
   }
 
-  function openDavx5() {
-    if (!caldavUrl) {
-      setSyncMessage('Save a CalDAV URL before opening DAVx5')
-      return
-    }
-    const deepLink = `davx5://${caldavUrl.replace(/^https?:\/\//, '')}`
-    window.location.href = deepLink
-  }
-
   useEffect(() => {
     if (!caldavUrl) return undefined
     syncFromCalendarFeed()
@@ -249,7 +240,7 @@ function App() {
 
   function saveCalDav() {
     localStorage.setItem('orbit-caldav-url', caldavUrl)
-    setSyncMessage(caldavUrl ? 'DAVx5 connection details saved locally' : 'CalDAV URL cleared')
+    setSyncMessage(caldavUrl ? 'ICS feed URL saved locally' : 'ICS feed URL cleared')
     setShowSettings(false)
   }
 
@@ -356,12 +347,12 @@ function App() {
             <div className="settings-heading">
               <div>
                 <p className="eyebrow">SYNC / DAVX5</p>
-                <h2>CalDAV bridge</h2>
+                <h2>Calendar feed</h2>
               </div>
               <button className="icon-button" onClick={() => setShowSettings(false)} aria-label="Close settings">×</button>
             </div>
             <p className="muted">
-              Orbit is a browser calendar for phone, desktop, and supported Meta display browser environments. Use an ICS feed for web refreshes or export an ICS file for DAVx5.
+              Orbit is a browser calendar for phone, desktop, and supported Meta display browser environments. Use a CORS-enabled ICS feed for automatic web refreshes.
             </p>
             <label>
               CalDAV collection URL
@@ -379,11 +370,10 @@ function App() {
               <button className="secondary-action" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'Loading…' : 'Load DAVx5 updates'}
               </button>
-              <button className="secondary-action" onClick={openDavx5}>Open DAVx5</button>
             </div>
             <div className="davx5-note">
-              <strong>DAVx5 setup</strong>
-              <span>Orbit does not reuse a DAVx5 login. It can reload an ICS feed on focus, visibility, reconnect, and every 60 seconds. The feed must allow CORS; private CalDAV servers usually need a same-origin proxy.</span>
+              <strong>ICS feed setup</strong>
+              <span>Orbit does not reuse a DAVx5 login. It reloads a CORS-enabled ICS feed on focus, visibility, reconnect, and every 60 seconds. Private CalDAV servers usually need a same-origin proxy.</span>
             </div>
           </section>
         </div>
