@@ -8,7 +8,43 @@
     <title>Orbit Calendar</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <main class="boot-screen">
+        <p class="boot-kicker">ORBIT / GLANCE MODE</p>
+        <h1>Orbit Calendar</h1>
+        <p>Loading calendar…</p>
+        <noscript>
+          <p>JavaScript must be enabled to use the interactive calendar.</p>
+        </noscript>
+      </main>
+    </div>
+    <style>
+      .boot-screen {
+        min-height: 100vh;
+        display: grid;
+        place-content: center;
+        gap: 12px;
+        padding: 32px;
+        color: #f8fbff;
+        background: #020613;
+        font-family: system-ui, sans-serif;
+      }
+      .boot-screen h1,
+      .boot-screen p {
+        margin: 0;
+      }
+      .boot-screen h1 {
+        font-size: clamp(2.4rem, 8vw, 4.5rem);
+      }
+      .boot-kicker {
+        color: #66d8ff;
+        font-weight: 700;
+        letter-spacing: .16em;
+      }
+      .boot-screen noscript {
+        color: #ee6d8b;
+      }
+    </style>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
