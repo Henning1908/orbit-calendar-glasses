@@ -30,4 +30,4 @@ Open the glasses view at:
 
 <https://orbit-calendar-glasses.onrender.com/glasses.html>
 
-It shows a six-digit code. On your phone or PC, open the main app, choose `☷`, enter your ICS feed URL and the code, then choose **Send calendar to glasses**. The glasses then load the calendar from Orbit and refresh it automatically.
+It shows a six-digit code. On your phone or PC, open the main app, choose `☷`, enter the CalDAV server URL, username, password/app-password, and the code, then choose **Send calendar to glasses**. Orbit reads the protected calendar server-side and the glasses refresh it automatically. An ICS URL remains available for read-only feeds.

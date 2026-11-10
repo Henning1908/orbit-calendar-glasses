@@ -50,8 +50,26 @@ function validFeedUrl(value) {
   }
 }
 
+function validCredentials(value) {
+  return typeof value === 'string' && value.length > 0 && value.length <= 512
+}
+
+function authHeaders(source) {
+  if (!source.username || !source.password) return {}
+  return { Authorization: `Basic ${Buffer.from(`${source.username}:${source.password}`).toString('base64')}` }
+}
+
 function unescapeIcs(value) {
   return value.replace(/\\n/gi, '\n').replace(/\\([\\;,])/g, '$1')
+}
+
+function unescapeXml(value) {
+  return value
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
 }
 
 function parseIcs(text) {
@@ -83,6 +101,36 @@ async function fetchCalendar(feedUrl) {
   const body = await response.text()
   if (!body.includes('BEGIN:VCALENDAR')) throw new Error('Die URL liefert keinen ICS-Kalenderfeed.')
   return parseIcs(body)
+}
+
+async function fetchCalDav(source) {
+  const headers = { ...authHeaders(source), Accept: 'text/calendar, application/xml, text/xml' }
+  const direct = await fetch(source.url, { cache: 'no-store', headers })
+  const directBody = await direct.text()
+  if (direct.ok && directBody.includes('BEGIN:VCALENDAR')) return parseIcs(directBody)
+
+  const report = await fetch(source.url, {
+    method: 'REPORT',
+    cache: 'no-store',
+    headers: {
+      ...authHeaders(source),
+      Accept: 'application/xml, text/xml',
+      'Content-Type': 'application/xml; charset=utf-8',
+      Depth: '1',
+    },
+    body: `<?xml version="1.0" encoding="UTF-8"?><c:calendar-query xmlns:c="urn:ietf:params:xml:ns:caldav" xmlns:d="DAV:"><d:prop><c:calendar-data/></d:prop><c:filter><c:comp-filter name="VCALENDAR"><c:comp-filter name="VEVENT"/></c:comp-filter></c:filter></c:calendar-query>`,
+  })
+  const reportBody = await report.text()
+  if (!report.ok) throw new Error(`CalDAV antwortet mit HTTP ${report.status}`)
+  const calendars = [...reportBody.matchAll(/<(?:[A-Za-z0-9_-]+:)?calendar-data[^>]*>([\s\S]*?)<\/(?:[A-Za-z0-9_-]+:)?calendar-data>/gi)]
+    .map((match) => unescapeXml(match[1]))
+  if (!calendars.length) throw new Error('Die CalDAV-URL lieferte keine Kalenderdaten.')
+  return calendars.flatMap(parseIcs)
+}
+
+async function fetchCalendarSource(source) {
+  if (source.type === 'caldav') return fetchCalDav(source)
+  return fetchCalendar(source.url)
 }
 
 async function serveFile(response, filename) {
@@ -131,12 +179,24 @@ async function route(request, response) {
       const body = await readJson(request)
       const pair = [...pairings.values()].find((item) => item.code === String(body.code || '').replace(/\s/g, ''))
       const feedUrl = validFeedUrl(body.feedUrl)
+      const source = body.caldav
+        ? {
+            type: 'caldav',
+            url: validFeedUrl(body.caldav.url),
+            username: body.caldav.username,
+            password: body.caldav.password,
+          }
+        : null
       if (!pair || Date.now() - pair.createdAt > 10 * 60 * 1000) {
         return json(response, 400, { error: 'Code ungültig oder abgelaufen.' })
       }
-      if (!feedUrl) return json(response, 400, { error: 'Bitte eine gültige http(s)-ICS-URL eingeben.' })
-      await fetchCalendar(feedUrl)
-      devices.set(pair.id, { feedUrl, updatedAt: Date.now() })
+      if (!source && !feedUrl) return json(response, 400, { error: 'Bitte eine gültige ICS- oder CalDAV-URL eingeben.' })
+      if (source && (!source.url || !validCredentials(source.username) || !validCredentials(source.password))) {
+        return json(response, 400, { error: 'CalDAV-URL, Benutzername und Passwort werden benötigt.' })
+      }
+      const calendarSource = source || { type: 'ics', url: feedUrl }
+      await fetchCalendarSource(calendarSource)
+      devices.set(pair.id, { source: calendarSource, updatedAt: Date.now() })
       pairings.delete(pair.id)
       return json(response, 200, { connected: true, deviceId: pair.id })
     }
@@ -149,7 +209,7 @@ async function route(request, response) {
     if (request.method === 'GET' && url.pathname === '/api/glasses/calendar') {
       const device = devices.get(url.searchParams.get('deviceId'))
       if (!device) return json(response, 401, { error: 'Brille noch nicht gekoppelt.' })
-      const events = await fetchCalendar(device.feedUrl)
+      const events = await fetchCalendarSource(device.source || { type: 'ics', url: device.feedUrl })
       device.updatedAt = Date.now()
       return json(response, 200, { events, updatedAt: device.updatedAt })
     }

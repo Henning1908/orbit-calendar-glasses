@@ -37,8 +37,10 @@ Die URL muss im Browser erreichbar sein und CORS erlauben. Die Website kann kein
 2. Die Brille zeigt einen sechsstelligen Code.
 3. Öffne Orbit auf dem Telefon oder PC.
 4. Öffne `☷`.
-5. Trage eine ICS-Feed-URL ein und speichere sie.
-6. Trage den sechsstelligen Brillencode ein.
-7. Klicke **Send calendar to glasses**.
+5. Trage die CalDAV-Server- oder Kalender-URL ein.
+6. Trage den CalDAV-Benutzernamen ein.
+7. Trage das CalDAV-Passwort oder App-Passwort ein.
+8. Trage den sechsstelligen Brillencode ein.
+9. Klicke **Send calendar to glasses**.
 
-Die Brille lädt danach die Termine direkt vom Orbit-Server und aktualisiert sie regelmäßig. Die Website benötigt dafür keine Meta-Developer-Secrets.
+Die Brille lädt danach die Termine direkt vom Orbit-Server und aktualisiert sie regelmäßig. Die Zugangsdaten werden nicht an die Brille gesendet. Ein ICS-Link kann weiterhin für read-only Kalenderfeeds verwendet werden. Die Website benötigt dafür keine Meta-Developer-Secrets.

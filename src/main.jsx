@@ -96,6 +96,8 @@ function App() {
   const [screen, setScreen] = useState('calendar')
   const [showSettings, setShowSettings] = useState(false)
   const [caldavUrl, setCaldavUrl] = useState(() => localStorage.getItem('orbit-caldav-url') || '')
+  const [caldavUsername, setCaldavUsername] = useState('')
+  const [caldavPassword, setCaldavPassword] = useState('')
   const [syncMessage, setSyncMessage] = useState('Local calendar ready')
   const [isSyncing, setIsSyncing] = useState(false)
   const [touchStart, setTouchStart] = useState(null)
@@ -253,7 +255,11 @@ function App() {
       return
     }
     if (!caldavUrl) {
-      setPairMessage('Save an ICS feed URL first.')
+      setPairMessage('Enter the CalDAV base URL first.')
+      return
+    }
+    if (!caldavUsername || !caldavPassword) {
+      setPairMessage('Enter the CalDAV username and password.')
       return
     }
     setPairMessage('Checking the feed and connecting…')
@@ -261,7 +267,14 @@ function App() {
       const response = await fetch('/api/pair/claim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code: normalizedCode, feedUrl: caldavUrl }),
+        body: JSON.stringify({
+          code: normalizedCode,
+          caldav: {
+            url: caldavUrl,
+            username: caldavUsername,
+            password: caldavPassword,
+          },
+        }),
       })
       const body = await response.json()
       if (!response.ok) throw new Error(body.error || 'Pairing failed')
@@ -379,14 +392,33 @@ function App() {
               <button className="icon-button" onClick={() => setShowSettings(false)} aria-label="Close settings">×</button>
             </div>
             <p className="muted">
-              Orbit is a browser calendar for phone, desktop, and supported Meta display browser environments. Use a CORS-enabled ICS feed for automatic web refreshes.
+              Orbit can show a browser-accessible ICS feed. For glasses pairing, it can also read a protected CalDAV calendar with the server URL, username, and password.
             </p>
             <label>
-              CalDAV collection URL
+              CalDAV base or calendar URL
               <input
                 value={caldavUrl}
                 onChange={(event) => setCaldavUrl(event.target.value)}
                 placeholder="https://cloud.example.com/remote.php/dav/calendars/..."
+              />
+            </label>
+            <label>
+              CalDAV username
+              <input
+                autoComplete="username"
+                value={caldavUsername}
+                onChange={(event) => setCaldavUsername(event.target.value)}
+                placeholder="your username"
+              />
+            </label>
+            <label>
+              CalDAV password or app password
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={caldavPassword}
+                onChange={(event) => setCaldavPassword(event.target.value)}
+                placeholder="Only sent over HTTPS"
               />
             </label>
             <div className="settings-actions">
@@ -400,7 +432,7 @@ function App() {
             </div>
             <div className="pairing-card">
               <strong>Connect glasses</strong>
-              <span>Open <code>/glasses.html</code> on the glasses, then enter the 6-digit code shown there.</span>
+              <span>Open <code>/glasses.html</code> on the glasses, then enter the 6-digit code shown there. The credentials stay on the Orbit server and are not sent to the glasses.</span>
               <input
                 inputMode="numeric"
                 maxLength="7"
@@ -413,8 +445,8 @@ function App() {
               {pairMessage && <span className="pair-message">{pairMessage}</span>}
             </div>
             <div className="davx5-note">
-              <strong>ICS feed setup</strong>
-              <span>Orbit does not reuse a DAVx5 login. It reloads a CORS-enabled ICS feed on focus, visibility, reconnect, and every 60 seconds. Private CalDAV servers usually need a same-origin proxy.</span>
+              <strong>DAVx5 / CalDAV</strong>
+              <span>Use the CalDAV server URL behind DAVx5, not a DAVx5 app URL. A private CalDAV connection is used only for the paired glasses; the browser itself still cannot read the Android Calendar Provider.</span>
             </div>
           </section>
         </div>
