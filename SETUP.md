@@ -2,9 +2,25 @@
 
 Diese Anleitung beschreibt den aktuellen Aufbau für die Android-App auf dem Telefon. DAVx5 bleibt dabei die einzige App, die sich beim CalDAV-Server anmeldet.
 
-## 1. Voraussetzungen
+## Schnellster Weg ohne Android Studio: APK aus GitHub herunterladen
 
-- Android Studio Hedgehog oder neuer
+Android Studio ist für die normale Nutzung nicht nötig. GitHub baut die APK automatisch:
+
+1. Repository öffnen: <https://github.com/Henning1908/orbit-calendar-glasses>
+2. Den Tab **Actions** öffnen.
+3. Den Workflow **Build Android APK** auswählen.
+4. Den letzten erfolgreichen Lauf öffnen.
+5. Unter **Artifacts** `orbit-calendar-debug-apk` herunterladen.
+6. Die ZIP-Datei auf dem Telefon entpacken.
+7. `androidApp-debug.apk` öffnen und die Installation erlauben.
+
+Bei jedem Push auf `main` wird automatisch ein neuer Build gestartet. Einen manuellen Build kannst du über **Actions → Build Android APK → Run workflow** starten.
+
+Android blockiert möglicherweise die Installation aus dem Browser oder Dateimanager. Dann in den Android-Einstellungen für diese App **Install unknown apps / Unbekannte Apps installieren** erlauben. Die APK ist aktuell eine Debug-Testversion, keine Play-Store-Version.
+
+## 1. Voraussetzungen für lokale Builds
+
+- Android Studio Hedgehog oder neuer (nur nötig, wenn du lokal bauen oder den Code debuggen willst)
 - Android SDK 35
 - JDK 17
 - Ein Android-Telefon mit aktivierter USB-Entwickleroption oder ein Android-Emulator
@@ -21,7 +37,7 @@ Diese Anleitung beschreibt den aktuellen Aufbau für die Android-App auf dem Tel
 
 Das Projekt benötigt aktuell JDK 17 für den Android-/Kotlin-Build. Java 25 oder 26 sollte für dieses Projekt nicht als Gradle-JDK verwendet werden.
 
-## 2. Projekt öffnen
+## 2. Projekt öffnen oder lokal bauen
 
 1. Repository klonen:
 
@@ -30,13 +46,13 @@ Das Projekt benötigt aktuell JDK 17 für den Android-/Kotlin-Build. Java 25 ode
    cd orbit-calendar-glasses
    ```
 
-2. Den Repository-Ordner in Android Studio öffnen.
+2. Den Repository-Ordner in Android Studio öffnen, falls du lokal entwickeln möchtest.
 3. Warten, bis Gradle synchronisiert ist.
 4. In der Run-Konfiguration `androidApp` auswählen.
 5. Ein angeschlossenes Telefon oder einen Emulator auswählen.
 6. **Run** drücken.
 
-Alternativ kann die Debug-APK aus PowerShell gebaut werden:
+Für einen lokalen Build ohne Android Studio kann die Debug-APK aus PowerShell gebaut werden, wenn JDK 17 und das Android SDK installiert sind:
 
 ```powershell
 .\gradlew.bat :androidApp:assembleDebug

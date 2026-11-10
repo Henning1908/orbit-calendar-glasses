@@ -4,6 +4,8 @@ Orbit is a glance-first calendar inspired by the supplied 10-year planner refere
 
 [Deutschsprachige Installations- und Setup-Anleitung: **SETUP.md**](SETUP.md)
 
+Die APK wird bei jedem Push auf `main` automatisch über GitHub Actions gebaut. Für die Installation auf einem Android-Telefon brauchst du Android Studio nicht; lade das APK-Artefakt aus dem Workflow **Build Android APK** herunter.
+
 ## Features
 
 - Large, glanceable month grid with keyboard-friendly navigation
