@@ -26,10 +26,18 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: 'platforms;android-35 build-tools;35.0.0'
+          packages: 'platforms;android-36 build-tools;36.0.0'
 
       - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: sdkmanager "platforms;android-36" "build-tools;36.0.0"
+
+      - name: Write Meta Wearables credentials
+        env:
+          MWDAT_APPLICATION_ID: ${{ secrets.MWDAT_APPLICATION_ID }}
+          MWDAT_CLIENT_TOKEN: ${{ secrets.MWDAT_CLIENT_TOKEN }}
+        run: |
+          printf "mwdat_application_id=%s\nmwdat_client_token=%s\n" \
+            "$MWDAT_APPLICATION_ID" "$MWDAT_CLIENT_TOKEN" > local.properties
 
       - name: Build debug APK
         run: ./gradlew :androidApp:assembleDebug

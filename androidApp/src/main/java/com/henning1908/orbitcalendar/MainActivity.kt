@@ -1,6 +1,8 @@
 package com.henning1908.orbitcalendar
 
 import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.provider.CalendarContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -16,7 +18,7 @@ import java.util.Date
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var repository: CalendarRepository
-    private val glassesBridge: GlassesBridge = NoOpGlassesBridge()
+    private lateinit var glassesBridge: MetaGlassesBridge
 
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
@@ -34,18 +36,38 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         repository = CalendarRepository(this)
+        glassesBridge = MetaGlassesBridge(applicationContext, lifecycleScope)
+        glassesBridge.initialize()
 
         binding.permissionButton.setOnClickListener {
             permissionLauncher.launch(arrayOf(Manifest.permission.READ_CALENDAR))
         }
         binding.refreshButton.setOnClickListener { refreshCalendar() }
+        binding.connectGlassesButton.setOnClickListener {
+            glassesBridge.startRegistration(this)
+            glassesBridge.connect()
+        }
         contentResolver.registerContentObserver(CalendarContract.Instances.CONTENT_URI, true, calendarObserver)
         refreshCalendar()
+        requestRuntimePermissions()
     }
 
     override fun onDestroy() {
         contentResolver.unregisterContentObserver(calendarObserver)
+        glassesBridge.disconnect()
         super.onDestroy()
+    }
+
+    private fun requestRuntimePermissions() {
+        val permissions = buildList {
+            add(Manifest.permission.READ_CALENDAR)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                add(Manifest.permission.BLUETOOTH_CONNECT)
+            }
+        }
+        if (permissions.any { androidx.core.content.ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED }) {
+            permissionLauncher.launch(permissions.toTypedArray())
+        }
     }
 
     private fun refreshCalendar() {

@@ -121,21 +121,34 @@ androidApp/src/main/java/com/henning1908/orbitcalendar/GlassesBridge.kt
 
 ## 6. Meta Display Glasses
 
-Die Kalenderquelle ist bereits fertig getrennt von der Brillen-Ausgabe. Aktuell verwendet die App:
+Die Kalenderquelle ist jetzt mit der Meta Wearables Device Access Toolkit Display-API verbunden. Beim Start:
 
-```kotlin
-private val glassesBridge: GlassesBridge = NoOpGlassesBridge()
+1. Orbit initialisiert das Meta Wearables SDK.
+2. **Connect Meta display glasses** startet die Meta-Registrierung bzw. verbindet ein bereits registriertes Gerät.
+3. Die App sucht automatisch ein verbundenes, displayfähiges Gerät.
+4. Nach dem Aufbau der Display-Session wird ein kompakter Kalender mit den nächsten drei Terminen gesendet.
+5. Änderungen am Android-Kalender werden erneut an die Brille gesendet.
+
+Für die Meta-Registrierung brauchst du Zugangsdaten aus dem Meta Wearables Developer Center:
+
+```text
+mwdat_application_id=DEINE_APPLICATION_ID
+mwdat_client_token=DEIN_CLIENT_TOKEN
 ```
 
-Für die echte Meta-Brillen-Ausgabe wird `NoOpGlassesBridge` durch einen Adapter für das Meta Wearables Device Access Toolkit ersetzt. Dieser Adapter muss dann:
+Diese Werte gehören in `androidApp/local.properties` und dürfen nicht committed werden. Für den GitHub-APK-Workflow müssen sie als Repository-Secrets mit den Namen `MWDAT_APPLICATION_ID` und `MWDAT_CLIENT_TOKEN` hinterlegt werden:
 
-1. die Meta-App-ID und die freigegebene Wearables-SDK-Abhängigkeit verwenden,
-2. die Verbindung zu den gekoppelten Brillen herstellen,
-3. einen kompakten `CalendarSnapshot` senden,
-4. Verbindungsabbrüche behandeln,
-5. nur die vom Nutzer erlaubten Kalenderdaten anzeigen.
+**Repository → Settings → Secrets and variables → Actions → New repository secret**
 
-Die Android-Kalenderintegration muss dafür nicht geändert werden. Der Austausch passiert nur in `GlassesBridge.kt`.
+Ohne diese Secrets lässt sich die APK bauen, aber die echte Brillenregistrierung funktioniert nicht.
+
+Die Kalenderquelle und die Brillen-Ausgabe bleiben getrennt:
+
+```kotlin
+private val glassesBridge: GlassesBridge = MetaGlassesBridge(...)
+```
+
+Die konkrete Implementierung liegt in `GlassesBridge.kt`. Dort werden Session, Display-Capability, Verbindungsfehler und die Darstellung der nächsten Termine behandelt.
 
 ## 7. Web-App lokal starten
 
@@ -170,4 +183,8 @@ Wenn dort Java 25 oder Java 26 angezeigt wird, in Android Studio den **Gradle JD
 
 ### Brille zeigt noch nichts
 
-Das ist im aktuellen Stand erwartbar: Die Kalenderquelle ist angebunden, aber `NoOpGlassesBridge` sendet noch keine Daten an die Brille. Dafür muss der Meta-Wearables-Adapter mit der für das Entwicklerkonto freigeschalteten Meta-SDK-Version ergänzt werden.
+1. Prüfen, ob die Meta-Secrets im GitHub-Repository gesetzt sind.
+2. Die Meta AI-/Wearables-Registrierung in der App abschließen.
+3. Prüfen, ob die Brille gekoppelt, eingeschaltet und displayfähig ist.
+4. Falls die App auf der Brille veraltet ist, zuerst das DAT-Update in der Meta-App durchführen.
+5. In Orbit erneut **Connect Meta display glasses** drücken.

@@ -30,7 +30,7 @@ The browser can only import updates directly when the URL returns an ICS feed an
 
 ## Native Android companion
 
-The `androidApp` module is the real phone integration for DAVx5:
+The `androidApp` module is the real phone integration for DAVx5 and Meta display glasses:
 
 ```text
 DAVx5 login + sync
@@ -42,6 +42,6 @@ Orbit Android companion
 Meta wearable bridge
 ```
 
-DAVx5 remains logged in and owns the CalDAV credentials. Orbit does not authenticate against DAVx5 and does not store those credentials. The companion requests `READ_CALENDAR`, queries `CalendarContract.Instances`, and registers a `ContentObserver`, so changes made by DAVx5 are reflected automatically. The `GlassesBridge` interface is intentionally isolated in `androidApp/src/main/java/.../GlassesBridge.kt`; replace `NoOpGlassesBridge` with the Meta Wearables Device Access Toolkit adapter once the Meta app identifiers and SDK dependency are configured.
+DAVx5 remains logged in and owns the CalDAV credentials. Orbit does not authenticate against DAVx5 and does not store those credentials. The companion requests `READ_CALENDAR`, queries `CalendarContract.Instances`, and registers a `ContentObserver`, so changes made by DAVx5 are reflected automatically. The `GlassesBridge` interface is intentionally isolated in `androidApp/src/main/java/.../GlassesBridge.kt`; `MetaGlassesBridge` is the production adapter and requires the Meta app identifiers and client token.
 
-Open the repository in Android Studio and run the `androidApp` configuration on an Android phone. After installing, grant calendar access; the app then displays the events DAVx5 has already synchronized. A Meta glasses adapter is the final device-specific step and cannot be tested from the browser-only Vite preview.
+The app now contains a `MetaGlassesBridge` implementation using `mwdat-core` and `mwdat-display`. It selects a connected display-capable device and sends the next three events to the glasses. Add `mwdat_application_id` and `mwdat_client_token` locally or configure the matching GitHub Actions secrets before installing a build. The browser-only Vite preview cannot access the Android Calendar Provider or the glasses.
