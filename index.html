@@ -4,12 +4,32 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#08111d" />
-    <meta name="description" content="A calm, read-only calendar for the web and supported Meta display glasses. Connect ICS or CalDAV and refresh automatically." />
+    <meta name="description" content="Orbit Calendar is a free, glance-first calendar web app for supported Meta display glasses. Connect a CalDAV account or ICS feed and see your upcoming events." />
+    <link rel="canonical" href="https://orbit-calendar.henning-orbit-calendar.workers.dev/" />
+    <link rel="alternate" hreflang="en" href="https://orbit-calendar.henning-orbit-calendar.workers.dev/" />
+    <link rel="alternate" hreflang="de" href="https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.de.html" />
+    <link rel="alternate" hreflang="x-default" href="https://orbit-calendar.henning-orbit-calendar.workers.dev/" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Orbit Calendar — your calendar, in one clear glance" />
-    <meta property="og:description" content="A calm, read-only calendar for the web and supported Meta display glasses." />
+    <meta property="og:title" content="Orbit Calendar - Calendar for Meta Display Glasses" />
+    <meta property="og:description" content="A free calendar web app with CalDAV and ICS sync, automatic refresh, and a glance-first view for supported Meta display glasses." />
+    <meta property="og:url" content="https://orbit-calendar.henning-orbit-calendar.workers.dev/" />
     <meta property="og:image" content="https://orbit-calendar.henning-orbit-calendar.workers.dev/images/orbit-hero.svg" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Orbit Calendar - Calendar for Meta Display Glasses" />
+    <meta name="twitter:description" content="Connect CalDAV or ICS and see your upcoming events on supported Meta display glasses." />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Orbit Calendar",
+        "url": "https://orbit-calendar.henning-orbit-calendar.workers.dev/",
+        "applicationCategory": "CalendarApplication",
+        "operatingSystem": "Web",
+        "description": "A free calendar web app with read-only CalDAV and ICS sync, automatic refresh, and a glance-first view for supported Meta display glasses.",
+        "author": { "@type": "Person", "name": "Henning1908", "url": "https://github.com/Henning1908" },
+        "featureList": ["Read-only CalDAV calendar sync", "ICS feed support", "Automatic refresh for paired glasses", "Calendar view for supported Meta display glasses"]
+      }
+    </script>
     <link rel="icon" type="image/png" sizes="512x512" href="/images/meta-display-apps-app-icon-512-v3.png" />
     <script>
       if (location.hostname === 'orbit-calendar-glasses.onrender.com') {
@@ -17,14 +37,15 @@
       }
     </script>
     <link rel="manifest" href="/manifest.webmanifest" />
-    <title>Orbit Calendar</title>
+    <title>Orbit Calendar - Calendar for Meta Display Glasses</title>
   </head>
   <body>
     <div id="root">
       <main class="boot-screen">
         <p class="boot-kicker">ORBIT / GLANCE MODE</p>
         <h1>Orbit Calendar</h1>
-        <p>Loading calendar…</p>
+        <p>A free calendar web app for supported Meta display glasses, with CalDAV and ICS sync.</p>
+        <p><a href="/glasses.html">Set up the glasses</a> | <a href="/guide.html">English setup guide</a> | <a href="/guide.de.html">Deutsche Anleitung</a> | <a href="https://github.com/Henning1908/orbit-calendar-glasses">Source code on GitHub</a></p>
         <noscript>
           <p>JavaScript must be enabled to use the interactive calendar.</p>
         </noscript>
@@ -55,6 +76,9 @@
       }
       .boot-screen noscript {
         color: #ee6d8b;
+      }
+      .boot-screen a {
+        color: #66d8ff;
       }
     </style>
     <script type="module" src="/src/main.jsx"></script>
