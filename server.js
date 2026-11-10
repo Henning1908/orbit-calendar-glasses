@@ -86,7 +86,13 @@ async function fetchCalendar(feedUrl) {
 }
 
 async function serveFile(response, filename) {
-  const content = await readFile(filename)
+  let content
+  try {
+    content = await readFile(filename)
+  } catch (error) {
+    if (error.code === 'ENOENT') return json(response, 404, { error: 'Nicht gefunden.' })
+    throw error
+  }
   response.writeHead(200, {
     'Content-Type': mimeTypes[path.extname(filename)] || 'application/octet-stream',
     'Cache-Control': 'no-store, no-cache, must-revalidate',
@@ -110,8 +116,12 @@ async function route(request, response) {
       const device = devices.get(url.searchParams.get('id'))
       if (device) return json(response, 200, { status: 'connected', connected: true })
       if (!pair) return json(response, 404, { error: 'Pairing nicht gefunden oder abgelaufen.' })
+      if (Date.now() - pair.createdAt > 10 * 60 * 1000) {
+        pairings.delete(pair.id)
+        return json(response, 410, { status: 'expired', connected: false, error: 'Pairing abgelaufen.' })
+      }
       return json(response, 200, {
-        status: Date.now() - pair.createdAt > 10 * 60 * 1000 ? 'expired' : 'waiting',
+        status: 'waiting',
         code: pair.code,
         connected: false,
       })
@@ -152,7 +162,9 @@ async function route(request, response) {
 
     if (request.method === 'GET') {
       const relative = url.pathname === '/' ? '/index.html' : url.pathname
-      const baseDir = relative === '/glasses.html' || relative.startsWith('/.well-known/')
+      const baseDir = relative === '/glasses.html'
+        || relative === '/manifest.webmanifest'
+        || relative.startsWith('/.well-known/')
         ? publicDir
         : distDir
       const filename = path.normalize(path.join(baseDir, relative))
