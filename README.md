@@ -2,6 +2,8 @@
 
 Orbit is a glance-first calendar inspired by the supplied 10-year planner reference. It is designed for a narrow, high-contrast display such as Meta Display glasses while remaining usable as a responsive web app.
 
+[Deutschsprachige Installations- und Setup-Anleitung: **SETUP.md**](SETUP.md)
+
 ## Features
 
 - Large, glanceable month grid with keyboard-friendly navigation
