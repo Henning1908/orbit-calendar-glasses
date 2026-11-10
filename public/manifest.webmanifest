@@ -8,9 +8,9 @@
   "description": "A calm, read-only calendar for the web and supported Meta display glasses.",
   "icons": [
     {
-      "src": "/images/meta-display-apps-app-icon-v2.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "/images/meta-display-apps-app-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
