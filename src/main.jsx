@@ -331,7 +331,7 @@ function App() {
               <button className="icon-button" onClick={() => setShowSettings(false)} aria-label="Close settings">×</button>
             </div>
             <p className="muted">
-              DAVx5 syncs your Android calendar with a CalDAV server. Orbit keeps a local glance-first view and lets you export an ICS file to import into your DAVx5 account.
+              Orbit is a browser calendar for phone, desktop, and supported Meta display browser environments. Use an ICS feed for web refreshes or export an ICS file for DAVx5.
             </p>
             <label>
               CalDAV collection URL
@@ -353,7 +353,7 @@ function App() {
             </div>
             <div className="davx5-note">
               <strong>DAVx5 setup</strong>
-              <span>Open DAVx5 to add the CalDAV account. Orbit reloads on focus, when the page becomes visible again, when the device reconnects, and every 60 seconds. A browser can only load updates when the URL returns an ICS feed and allows CORS; standard CalDAV servers often need a same-origin proxy.</span>
+              <span>Orbit does not reuse a DAVx5 login. It can reload an ICS feed on focus, visibility, reconnect, and every 60 seconds. The feed must allow CORS; private CalDAV servers usually need a same-origin proxy.</span>
             </div>
           </section>
         </div>

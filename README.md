@@ -1,19 +1,17 @@
 # Orbit Calendar
 
-Orbit is a glance-first calendar inspired by the supplied 10-year planner reference. It is designed for a narrow, high-contrast display such as Meta Display glasses while remaining usable as a responsive web app.
+Orbit is a **web app**: a glance-first calendar inspired by the supplied planner reference and optimized for a narrow, high-contrast screen such as Meta Display glasses. It runs in a normal browser and can be published as a static site on Render.
 
-[Deutschsprachige Installations- und Setup-Anleitung: **SETUP.md**](SETUP.md)
-
-Die APK wird bei jedem Push auf `main` automatisch über GitHub Actions gebaut. Für die Installation auf einem Android-Telefon brauchst du Android Studio nicht; lade das APK-Artefakt aus dem Workflow **Build Android APK** herunter.
+[Deutsche Setup-Anleitung: **SETUP.md**](SETUP.md)
 
 ## Features
 
 - Large, glanceable month grid with keyboard-friendly navigation
 - Local event presets and browser persistence
-- ICS export for importing the calendar into DAVx5
-- DAVx5 handoff link, manual sync, and automatic refresh on focus/visibility/online events
-- Native Android companion that reads DAVx5-synced events from Android Calendar Provider
-- No credentials are stored by the web app
+- ICS export for importing or sharing calendar data with DAVx5
+- CalDAV/ICS URL refresh with manual sync and automatic reload on focus, visibility, and reconnect
+- Responsive layout suitable for phone, desktop, and browser-based wearable experiences
+- No calendar credentials stored by the app
 
 ## Development
 
@@ -22,26 +20,32 @@ npm install
 npm run dev
 ```
 
-## DAVx5 workflow
+Create a production build with:
 
-DAVx5 is the Android CalDAV/CardDAV sync client. Use **Open DAVx5** to hand the saved collection URL to the Android app, then let DAVx5 synchronize the account. Orbit automatically tries to reload the configured URL on startup, every 60 seconds, and whenever the page regains focus, becomes visible, or comes back online. **Load DAVx5 updates** also triggers an immediate reload.
-
-The browser can only import updates directly when the URL returns an ICS feed and permits CORS. A standard authenticated CalDAV collection usually returns WebDAV XML rather than ICS, so production should add a same-origin CalDAV proxy/serverless function. It must keep provider credentials server-side and expose only the user's authenticated calendar collection to the app. ICS export remains available as a safe fallback.
-
-## Native Android companion
-
-The `androidApp` module is the real phone integration for DAVx5 and Meta display glasses:
-
-```text
-DAVx5 login + sync
-        ↓
-Android Calendar Provider
-        ↓  READ_CALENDAR permission
-Orbit Android companion
-        ↓
-Meta wearable bridge
+```bash
+npm run build
 ```
 
-DAVx5 remains logged in and owns the CalDAV credentials. Orbit does not authenticate against DAVx5 and does not store those credentials. The companion requests `READ_CALENDAR`, queries `CalendarContract.Instances`, and registers a `ContentObserver`, so changes made by DAVx5 are reflected automatically. The `GlassesBridge` interface is intentionally isolated in `androidApp/src/main/java/.../GlassesBridge.kt`; `MetaGlassesBridge` is the production adapter and requires the Meta app identifiers and client token.
+## Deploy on Render
 
-The app now contains a `MetaGlassesBridge` implementation using `mwdat-core` and `mwdat-display`. It selects a connected display-capable device and sends the next three events to the glasses. Add `mwdat_application_id` and `mwdat_client_token` locally or configure the matching GitHub Actions secrets before installing a build. The browser-only Vite preview cannot access the Android Calendar Provider or the glasses.
+This repository includes `render.yaml` for a static-site deployment:
+
+- **Build command:** `npm ci && npm run build`
+- **Publish directory:** `dist`
+
+The site is intentionally a client-side web app. Render hosts the interface; it does not receive DAVx5 passwords or CalDAV credentials.
+
+## DAVx5 and browser limitations
+
+DAVx5 remains the calendar sync app on Android. A browser cannot read DAVx5's private Android Calendar Provider or reuse the DAVx5 login session. Orbit therefore supports two web-safe flows:
+
+1. Configure an ICS feed or a public/CORS-enabled calendar endpoint in the settings and use **Load DAVx5 updates**.
+2. Use **Export .ics** and import the file into DAVx5.
+
+Most authenticated CalDAV collections return WebDAV XML and do not allow browser CORS requests. For a production connection to a private CalDAV server, add a same-origin server-side proxy or use an ICS feed. The proxy must keep credentials server-side and must never expose them to the browser.
+
+## Meta Display glasses
+
+The project is intentionally the **web-app option**, not a native Android application or an APK. The calendar is displayed by opening the deployed site in a browser environment supported by the glasses. The web app cannot use Meta's native Device Access Toolkit directly, so native-only capabilities such as direct device pairing, background delivery, or reading DAVx5's Android provider are outside this repository's scope.
+
+The UI is designed to remain readable on a narrow display: high contrast, large type, compact event cards, and no dependency on hover interactions.
