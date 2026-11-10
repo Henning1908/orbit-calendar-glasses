@@ -131,7 +131,16 @@ function App() {
       })
       const rawBody = await response.text()
       if (!response.ok) {
-        throw new Error(rawBody ? `HTTP ${response.status}: ${rawBody.slice(0, 120)}` : `HTTP ${response.status}`)
+        let detail = ''
+        try {
+          detail = JSON.parse(rawBody).error || ''
+        } catch {
+          detail = rawBody.slice(0, 120)
+        }
+        if (response.status === 401 || /HTTP 401/.test(detail)) {
+          throw new Error('Calendar access denied (401). Check the calendar address and sign-in details.')
+        }
+        throw new Error(detail || `HTTP ${response.status}`)
       }
       if (!rawBody.trim()) {
         throw new Error('The API returned an empty response. Open the Cloudflare app URL, not a local static preview.')
@@ -480,3 +489,4 @@ function App() {
 }
 
 createRoot(document.getElementById('root')).render(<App />)
+
