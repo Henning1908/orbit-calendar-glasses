@@ -1,3 +1,5 @@
+import staticAssets from './cloudflare-assets.js'
+
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
 
@@ -57,10 +59,11 @@ async function decrypt(value, secret) {
   return JSON.parse(decoder.decode(plaintext))
 }
 
-function validUrl(value) {
+function validUrl(value, httpsOnly = false) {
   try {
     const url = new URL(String(value || ''))
     if (!['http:', 'https:'].includes(url.protocol)) return null
+    if (httpsOnly && url.protocol !== 'https:') return null
     const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '')
     if (
       !host || host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') ||
@@ -87,7 +90,10 @@ function validCredentials(value) {
 
 function authHeaders(source) {
   if (!source.username || !source.password) return {}
-  return { Authorization: `Basic ${btoa(`${source.username}:${source.password}`)}` }
+  const bytes = encoder.encode(`${source.username}:${source.password}`)
+  let binary = ''
+  for (const byte of bytes) binary += String.fromCharCode(byte)
+  return { Authorization: `Basic ${btoa(binary)}` }
 }
 
 function unescapeIcs(value) {
@@ -134,18 +140,84 @@ async function fetchCalendar(feedUrl) {
   return parseIcs(body)
 }
 
-async function fetchCalDav(source) {
-  const headers = { ...authHeaders(source), Accept: 'text/calendar, application/xml, text/xml' }
-  const direct = await fetch(source.url, {
+function xmlElement(xml, name) {
+  const tag = `(?:[A-Za-z0-9_-]+:)?${name}`
+  const match = xml.match(new RegExp(`<${tag}(?:\\s[^>]*)?>([\\s\\S]*?)<\\/${tag}\\s*>`, 'i'))
+  return match ? match[1] : ''
+}
+
+function xmlPropertyHref(xml, name) {
+  const property = xmlElement(xml, name)
+  const href = xmlElement(property, 'href')
+  return href ? unescapeXml(href.trim()) : null
+}
+
+function calendarHrefList(xml, baseUrl) {
+  const responses = xml.match(/<(?:[A-Za-z0-9_-]+:)?response\b[^>]*>[\s\S]*?<\/(?:[A-Za-z0-9_-]+:)?response\s*>/gi) || []
+  return responses.flatMap((response) => {
+    const properties = xmlElement(response, 'prop')
+    const resourceType = xmlElement(properties, 'resourcetype')
+    if (!/<(?:[A-Za-z0-9_-]+:)?calendar(?:\s|\/|>)/i.test(resourceType)) return []
+    const href = xmlElement(response, 'href')
+    if (!href) return []
+    try {
+      return [new URL(unescapeXml(href.trim()), baseUrl).toString()]
+    } catch {
+      return []
+    }
+  })
+}
+
+async function propfind(source, url, depth, body) {
+  const response = await fetch(url, {
+    method: 'PROPFIND',
     cache: 'no-store',
     redirect: 'follow',
     signal: AbortSignal.timeout(15000),
-    headers,
+    headers: {
+      ...authHeaders(source),
+      Accept: 'application/xml, text/xml',
+      'Content-Type': 'application/xml; charset=utf-8',
+      Depth: depth,
+    },
+    body,
   })
-  const directBody = await direct.text()
-  if (direct.ok && directBody.toUpperCase().includes('BEGIN:VCALENDAR')) return parseIcs(directBody)
+  const responseBody = await response.text()
+  if (!response.ok && response.status !== 207) throw new Error(`CalDAV discovery antwortet mit HTTP ${response.status}.`)
+  return responseBody
+}
 
-  const report = await fetch(source.url, {
+async function discoverCalendars(source) {
+  const discoveryBody = '<?xml version="1.0" encoding="UTF-8"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop><d:current-user-principal/><d:principal-URL/><c:calendar-home-set/></d:prop></d:propfind>'
+  let discoveryUrl = source.url
+  let rootResponse
+  try {
+    rootResponse = await propfind(source, discoveryUrl, '0', discoveryBody)
+  } catch {
+    discoveryUrl = new URL('/.well-known/caldav', new URL(source.url).origin).toString()
+    rootResponse = await propfind(source, discoveryUrl, '0', discoveryBody)
+  }
+
+  let principal = xmlPropertyHref(rootResponse, 'current-user-principal')
+    || xmlPropertyHref(rootResponse, 'principal-URL')
+  let home = xmlPropertyHref(rootResponse, 'calendar-home-set')
+  if (!home && principal) {
+    const principalUrl = new URL(principal, discoveryUrl).toString()
+    const principalResponse = await propfind(source, principalUrl, '0', discoveryBody)
+    home = xmlPropertyHref(principalResponse, 'calendar-home-set')
+  }
+  if (!home) throw new Error('CalDAV-Server hat keine Kalenderadresse (calendar-home-set) geliefert.')
+
+  const homeUrl = new URL(home, discoveryUrl).toString()
+  const calendarsBody = '<?xml version="1.0" encoding="UTF-8"?><d:propfind xmlns:d="DAV:" xmlns:c="urn:ietf:params:xml:ns:caldav"><d:prop><d:resourcetype/><d:displayname/></d:prop></d:propfind>'
+  const calendarsResponse = await propfind(source, homeUrl, '1', calendarsBody)
+  const calendars = calendarHrefList(calendarsResponse, homeUrl)
+  if (!calendars.length) throw new Error('CalDAV-Server hat keine Kalender freigegeben.')
+  return calendars
+}
+
+async function fetchCalDavReport(source, url) {
+  const report = await fetch(url, {
     method: 'REPORT',
     cache: 'no-store',
     redirect: 'follow',
@@ -159,11 +231,34 @@ async function fetchCalDav(source) {
     body: '<?xml version="1.0" encoding="UTF-8"?><c:calendar-query xmlns:c="urn:ietf:params:xml:ns:caldav" xmlns:d="DAV:"><d:prop><c:calendar-data/></d:prop><c:filter><c:comp-filter name="VCALENDAR"><c:comp-filter name="VEVENT"/></c:comp-filter></c:filter></c:calendar-query>',
   })
   const reportBody = await report.text()
-  if (!report.ok) throw new Error(`CalDAV antwortet mit HTTP ${report.status}.`)
+  if (!report.ok) return { ok: false, status: report.status }
   const calendars = [...reportBody.matchAll(/<(?:[A-Za-z0-9_-]+:)?calendar-data[^>]*>([\s\S]*?)<\/(?:[A-Za-z0-9_-]+:)?calendar-data>/gi)]
     .map((match) => unescapeXml(match[1]))
-  if (!calendars.length) throw new Error('Die CalDAV-URL lieferte keine Kalenderdaten.')
-  return calendars.flatMap(parseIcs)
+  return { ok: true, events: calendars.flatMap(parseIcs), hasCalendarData: calendars.length > 0 }
+}
+
+async function fetchCalDav(source) {
+  const headers = { ...authHeaders(source), Accept: 'text/calendar, application/xml, text/xml' }
+  const direct = await fetch(source.url, {
+    cache: 'no-store',
+    redirect: 'follow',
+    signal: AbortSignal.timeout(15000),
+    headers,
+  })
+  const directBody = await direct.text()
+  if (direct.ok && directBody.toUpperCase().includes('BEGIN:VCALENDAR')) return parseIcs(directBody)
+  const directReport = await fetchCalDavReport(source, source.url)
+  if (directReport.ok && directReport.hasCalendarData) return directReport.events
+  if (directReport.ok && /<(?:[A-Za-z0-9_-]+:)?multistatus\b/i.test(directBody)) return directReport.events
+
+  const calendarUrls = await discoverCalendars(source)
+  const eventLists = await Promise.all(calendarUrls.map((calendarUrl) => fetchCalDavReport(source, calendarUrl)))
+  const successful = eventLists.filter((result) => result.ok)
+  if (!successful.length) {
+    const status = directReport.status || eventLists[0]?.status || 502
+    throw new Error(`CalDAV antwortet mit HTTP ${status}.`)
+  }
+  return successful.flatMap((result) => result.events)
 }
 
 async function fetchSource(source) {
@@ -175,7 +270,7 @@ function normalizeSource(body) {
   if (body.caldav) {
     const source = {
       type: 'caldav',
-      url: validUrl(body.caldav.url),
+      url: validUrl(body.caldav.url, true),
       username: body.caldav.username,
       password: body.caldav.password,
     }
@@ -290,7 +385,24 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url)
     if (url.pathname.startsWith('/api/')) return route(request, env)
-    return env.ASSETS.fetch(request)
+    let assetPath = url.pathname === '/' ? '/index.html' : decodeURIComponent(url.pathname)
+    let asset = staticAssets[assetPath]
+    if (!asset && !pathExtension(assetPath)) {
+      assetPath = '/index.html'
+      asset = staticAssets[assetPath]
+    }
+    if (!asset) return new Response('Not found', { status: 404 })
+    return new Response(asset.body, {
+      headers: {
+        'Content-Type': asset.contentType,
+        'Cache-Control': assetPath.startsWith('/assets/')
+          ? 'public, max-age=31536000, immutable'
+          : 'no-cache',
+      },
+    })
   },
 }
 
+function pathExtension(pathname) {
+  return /\.[a-z0-9]+$/i.test(pathname)
+}
