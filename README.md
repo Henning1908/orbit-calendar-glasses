@@ -70,5 +70,5 @@ For a production build and Cloudflare deployment, follow [docs/DEPLOYMENT.md](do
 
 ## License
 
-This repository currently has no open-source license. Unless the owner adds one, all rights are reserved. A public GitHub repository may still be viewed and forked on GitHub under GitHub's terms; that does not grant a general license to reuse or redistribute the source code elsewhere.
+Orbit Calendar is licensed under the [MIT License](LICENSE). You may use, modify, and redistribute the project, including commercially, provided you keep the copyright and license notice in copies or substantial portions. Credit: **Henning1908**. The license does not grant rights to third-party trademarks.
 
