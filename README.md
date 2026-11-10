@@ -35,10 +35,7 @@ The web app does not need Meta Developer credentials, an Android project, or an 
 
 A browser cannot directly reuse a DAVx5 login on an Android phone or read the phone's private Android Calendar Provider. To load updates in the web app, use an ICS feed that is reachable from the browser and allows CORS:
 
-1. Open the settings button `☷`.
-2. Enter the ICS feed URL.
-3. Choose **Save connection**.
-4. Choose **Load DAVx5 updates**.
+See the complete step-by-step guide in [SETUP.md – ICS-Feed einrichten](SETUP.md#3-ics-feed-einrichten).
 
 The feed is refreshed on startup, every 60 seconds, and when the page becomes active again. A normal private CalDAV collection usually cannot be loaded directly from a browser; it requires a server-side proxy or a CORS-enabled ICS endpoint.
 
