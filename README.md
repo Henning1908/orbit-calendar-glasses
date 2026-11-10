@@ -10,9 +10,9 @@ A calm, glance-first calendar for the web and Meta display glasses. Connect a re
 
 [Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Set up the glasses](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
 
-Part of **Meta Display Apps** — explore [WebUntis Glasses](https://github.com/Henning1908/WebUntis-Glasses) for your school timetable.
+Part of **Meta Display Apps** — explore [WebUntis Glasses](https://webuntis-glasses.henning-orbit-calendar.workers.dev/) for your school timetable.
 
-[English guide](docs/USER_GUIDE.md) · [Anleitung auf Deutsch](docs/USER_GUIDE.de.md) · [Deployment](docs/DEPLOYMENT.md) · [Veröffentlichungs-Checkliste](docs/PUBLIC_RELEASE_CHECKLIST.de.md) · [Buy me a coffee](https://gofund.me/89190630b)
+[English guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html) · [Anleitung auf Deutsch](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.de.html) · [☕ Buy me a coffee](https://gofund.me/89190630b)
 
 </div>
 
@@ -26,7 +26,7 @@ Part of **Meta Display Apps** — explore [WebUntis Glasses](https://github.com/
 
 The glasses check for calendar changes every 60 seconds. The code expires after 10 minutes. No account, app install, or payment is required to try the hosted app.
 
-> Need help finding your provider's CalDAV address? See the [step-by-step guide](docs/USER_GUIDE.md) or the [German version](docs/USER_GUIDE.de.md).
+> Need help finding your provider's CalDAV address? See the [step-by-step guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html) or the [German version](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.de.html).
 
 ## What Orbit does
 
@@ -44,20 +44,11 @@ The glasses check for calendar changes every 60 seconds. The code expires after 
 
 - Calendar reads are **read-only**. Local plans stay in the browser and are not uploaded to CalDAV.
 - A browser-only CalDAV password stays in the open page's memory and is not saved in browser storage.
-- When you pair the glasses, Orbit stores the CalDAV connection encrypted in Cloudflare D1 using a Worker secret. The secret is not in this repository.
-- Calendar events are fetched from your provider when requested; Orbit does not keep a copy of the event list in D1.
+- When you pair the glasses, Orbit stores the CalDAV connection encrypted on its secure Cloudflare-hosted service.
+- Calendar events are fetched from your provider when requested; Orbit does not keep a copy of the event list in its secure storage.
 - Disconnect the glasses from the glasses page to remove their saved server connection.
 
-## Cost and availability
-
-The hosted app uses Cloudflare Workers Free and D1 Free. Free plans have usage limits, so this is suitable for personal and low-volume use, not unlimited traffic. If an account reaches a free quota, requests can fail until the quota resets; the app does not upgrade itself to a paid plan. Limits can change—check Cloudflare's current [Workers limits](https://developers.cloudflare.com/workers/platform/limits/) and [D1 pricing and quotas](https://developers.cloudflare.com/d1/platform/pricing/).
-
-## Documentation
-
-- [User guide — English](docs/USER_GUIDE.md)
-- [Benutzeranleitung — Deutsch](docs/USER_GUIDE.de.md)
-- [Architecture and data flow](docs/ARCHITECTURE.md)
-- [Cloudflare deployment and maintenance](docs/DEPLOYMENT.md)
+The hosted service runs on Cloudflare. The public guides explain setup and privacy without requiring developer documentation.
 
 ## Develop locally
 
@@ -68,8 +59,9 @@ npm run dev
 
 Vite serves the interface locally. The production API runs in the Cloudflare Worker; the glasses pairing and sync flow therefore needs the deployed app or a local Worker environment.
 
-For a production build and Cloudflare deployment, follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). Do not commit `.env.cloudflare-secret` or any calendar credentials.
+For architecture, deployment, and maintenance details, see the maintainer docs: [architecture](docs/ARCHITECTURE.md) · [deployment](docs/DEPLOYMENT.md). Do not commit `.env.cloudflare-secret` or calendar credentials.
 
 ## License
 
 Orbit Calendar is licensed under the [MIT License](LICENSE). You may use, modify, and redistribute the project, including commercially, provided you keep the copyright and license notice in copies or substantial portions. Credit: **Henning1908**. The license does not grant rights to third-party trademarks.
+
