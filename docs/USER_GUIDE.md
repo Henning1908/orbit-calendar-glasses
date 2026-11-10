@@ -27,7 +27,7 @@ Choose **Send calendar to glasses**. Orbit checks that it can read the calendar 
 
 ### 3. Keep the display current
 
-Leave the glasses page open and connected to the internet. Orbit fetches updated events about once a minute. Reopening the page also fetches the latest events.
+Leave the glasses page open and connected to the internet. Orbit fetches updated events about once a minute. Reopening the page also fetches the latest events. The glasses show the next eight events from today in chronological order, with a date on each entry; events earlier today are hidden.
 
 To remove the server connection, choose **Disconnect** on the glasses page. Pair the device again to reconnect it.
 
@@ -64,3 +64,4 @@ Plans added with **Add plan** are stored in that browser only. **Export .ics** d
 | The page says the API is unavailable | Use the hosted Cloudflare app links above, not a local static preview. |
 
 The glasses experience requires a supported web view, JavaScript, local storage, and an internet connection. Device and provider compatibility can vary.
+
