@@ -126,8 +126,19 @@ function App() {
             : undefined,
         }),
       })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const body = await response.json()
+      const rawBody = await response.text()
+      if (!response.ok) {
+        throw new Error(rawBody ? `HTTP ${response.status}: ${rawBody.slice(0, 120)}` : `HTTP ${response.status}`)
+      }
+      if (!rawBody.trim()) {
+        throw new Error('Orbit API returned an empty response. Run the Node service, not the static preview.')
+      }
+      let body
+      try {
+        body = JSON.parse(rawBody)
+      } catch {
+        throw new Error('Orbit API returned an invalid response. Check the Node service deployment.')
+      }
       const remoteEvents = (body.events || []).reduce((result, event) => {
         result[event.date] = [...(result[event.date] || []), event]
         return result
