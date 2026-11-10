@@ -323,7 +323,7 @@ function App() {
       <section className="app-frame" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <header className="topbar">
           <div>
-            <p className="eyebrow">ORBIT / GLANCE MODE</p>
+            <div className="brand-kicker"><img className="brand-logo" src="/images/meta-display-apps-logo.svg" alt="Meta Display Apps" /><p className="eyebrow">META DISPLAY APPS / ORBIT</p></div>
             <h1>{screen === 'calendar' ? monthLabel : 'New event'}</h1>
             <p className="subheading">
               {screen === 'calendar' ? '2026—2036 planner' : formatLongDate(selectedDate)}
@@ -391,6 +391,7 @@ function App() {
               <span>Swipe or ← → month</span>
               <span>T = today</span>
               <a className="help-link" href="/guide.html">Setup guide</a>
+              <a className="support-link" href="https://gofund.me/89190630b" target="_blank" rel="noopener noreferrer">☕ Buy me a coffee</a>
               <button className="sync-link" onClick={syncFromCalendarFeed} disabled={isSyncing}>
                 {isSyncing ? 'syncing…' : '↻ sync now'}
               </button>
