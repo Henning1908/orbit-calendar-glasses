@@ -77,7 +77,7 @@ function encryptState(value) {
 }
 
 function decryptState(value) {
-  const payload = JSON.parse(value)
+  const payload = typeof value === 'string' ? JSON.parse(value) : value
   const decipher = createDecipheriv('aes-256-gcm', storageKey, Buffer.from(payload.iv, 'base64url'))
   decipher.setAuthTag(Buffer.from(payload.tag, 'base64url'))
   return JSON.parse(Buffer.concat([
