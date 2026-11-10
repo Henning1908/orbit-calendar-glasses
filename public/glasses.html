@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    if (location.hostname === 'orbit-calendar-glasses.onrender.com') {
+      location.replace(`https://orbit-calendar.henning-orbit-calendar.workers.dev${location.pathname}${location.search}${location.hash}`)
+    }
+  </script>
   <title>Orbit Calendar Glasses</title>
   <link rel="manifest" href="/manifest.webmanifest">
   <style>
@@ -125,3 +130,4 @@
   </script>
 </body>
 </html>
+
