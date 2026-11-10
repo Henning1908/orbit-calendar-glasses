@@ -15,6 +15,8 @@
     body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 10%, #163a5a, transparent 45%), #020613; }
     main { min-height: 100vh; width: min(100%, 600px); margin: auto; padding: 28px; box-sizing: border-box; display: grid; align-content: center; gap: 16px; }
     .eyebrow { color: #66d8ff; font-weight: 800; letter-spacing: .16em; font-size: .75rem; }
+    .brand-kicker { display: flex; align-items: center; gap: 10px; }
+    .brand-kicker img { width: 38px; height: 38px; object-fit: contain; }
     h1, p { margin: 0; } h1 { font-size: clamp(2rem, 8vw, 4rem); line-height: .95; }
     .code { font-size: clamp(3rem, 16vw, 7rem); letter-spacing: .14em; font-weight: 900; color: #66d8ff; }
     .muted { color: #aab9cf; } .card { border: 1px solid #536984; border-radius: 20px; padding: 18px; background: rgba(8, 24, 43, .9); }
@@ -27,7 +29,7 @@
 </head>
 <body>
   <main>
-    <div class="eyebrow">ORBIT / GLASSES</div>
+    <div class="eyebrow brand-kicker"><img src="/images/meta-display-apps-logo.svg" alt="">META DISPLAY APPS · ORBIT</div>
     <h1 id="title">Connect Orbit</h1>
     <p id="instruction">Enter this code in Orbit on your phone or PC.</p>
     <div id="code" class="code">------</div>
