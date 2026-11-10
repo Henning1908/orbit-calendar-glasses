@@ -43,4 +43,4 @@ Die URL muss im Browser erreichbar sein und CORS erlauben. Die Website kann kein
 8. Trage den sechsstelligen Brillencode ein.
 9. Klicke **Send calendar to glasses**.
 
-Die Brille lädt danach die Termine direkt vom Orbit-Server und aktualisiert sie regelmäßig. Die Zugangsdaten werden nicht an die Brille gesendet. Ein ICS-Link kann weiterhin für read-only Kalenderfeeds verwendet werden. Die Website benötigt dafür keine Meta-Developer-Secrets.
+Die Brille lädt danach die Termine direkt vom Orbit-Server und aktualisiert sie regelmäßig. Orbit speichert die Verbindung verschlüsselt; die Zugangsdaten werden nicht an die Brille gesendet. Beim späteren Öffnen der Brillenansicht ist kein PC und keine erneute Anmeldung nötig, solange die Brille Internetzugang hat. Ein ICS-Link kann weiterhin für read-only Kalenderfeeds verwendet werden. Die Website benötigt dafür keine Meta-Developer-Secrets.

@@ -2,12 +2,18 @@ import http from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { readFile } from 'node:fs/promises'
-import { randomBytes, randomInt } from 'node:crypto'
+import { mkdir, readFile as readStateFile, writeFile } from 'node:fs/promises'
+import { createCipheriv, createDecipheriv, createHash, randomBytes, randomInt } from 'node:crypto'
 
 const root = path.dirname(fileURLToPath(import.meta.url))
 const publicDir = path.join(root, 'public')
 const distDir = path.join(root, 'dist')
 const port = Number(process.env.PORT || 3000)
+const dataDir = process.env.DATA_DIR || path.join(root, '.data')
+const stateFile = path.join(dataDir, 'devices.enc')
+const storageKey = createHash('sha256')
+  .update(process.env.ORBIT_STORAGE_KEY || 'orbit-development-storage-key')
+  .digest()
 const pairings = new Map()
 const devices = new Map()
 const mimeTypes = {
@@ -57,6 +63,41 @@ function validCredentials(value) {
 function authHeaders(source) {
   if (!source.username || !source.password) return {}
   return { Authorization: `Basic ${Buffer.from(`${source.username}:${source.password}`).toString('base64')}` }
+}
+
+function encryptState(value) {
+  const iv = randomBytes(12)
+  const cipher = createCipheriv('aes-256-gcm', storageKey, iv)
+  const encrypted = Buffer.concat([cipher.update(JSON.stringify(value), 'utf8'), cipher.final()])
+  return JSON.stringify({
+    iv: iv.toString('base64url'),
+    tag: cipher.getAuthTag().toString('base64url'),
+    data: encrypted.toString('base64url'),
+  })
+}
+
+function decryptState(value) {
+  const payload = JSON.parse(value)
+  const decipher = createDecipheriv('aes-256-gcm', storageKey, Buffer.from(payload.iv, 'base64url'))
+  decipher.setAuthTag(Buffer.from(payload.tag, 'base64url'))
+  return JSON.parse(Buffer.concat([
+    decipher.update(Buffer.from(payload.data, 'base64url')),
+    decipher.final(),
+  ]).toString('utf8'))
+}
+
+async function loadDevices() {
+  try {
+    const saved = JSON.parse(await readStateFile(stateFile, 'utf8'))
+    Object.entries(decryptState(saved)).forEach(([id, device]) => devices.set(id, device))
+  } catch (error) {
+    if (error.code !== 'ENOENT') console.error(`Could not load encrypted calendar connections: ${error.message}`)
+  }
+}
+
+async function saveDevices() {
+  await mkdir(dataDir, { recursive: true })
+  await writeFile(stateFile, encryptState(Object.fromEntries(devices)), { mode: 0o600 })
 }
 
 function unescapeIcs(value) {
@@ -197,6 +238,7 @@ async function route(request, response) {
       const calendarSource = source || { type: 'ics', url: feedUrl }
       await fetchCalendarSource(calendarSource)
       devices.set(pair.id, { source: calendarSource, updatedAt: Date.now() })
+      await saveDevices()
       pairings.delete(pair.id)
       return json(response, 200, { connected: true, deviceId: pair.id })
     }
@@ -216,7 +258,10 @@ async function route(request, response) {
 
     if (request.method === 'POST' && url.pathname === '/api/disconnect') {
       const body = await readJson(request)
-      if (body.deviceId) devices.delete(body.deviceId)
+      if (body.deviceId) {
+        devices.delete(body.deviceId)
+        await saveDevices()
+      }
       return json(response, 200, { connected: false })
     }
 
@@ -240,6 +285,7 @@ async function route(request, response) {
   }
 }
 
+await loadDevices()
 http.createServer(route).listen(port, () => {
   console.log(`Orbit Calendar server listening on port ${port}`)
 })
