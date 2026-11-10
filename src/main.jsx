@@ -116,13 +116,22 @@ function App() {
     }
     setIsSyncing(true)
     try {
-      const response = await fetch(caldavUrl, { cache: 'no-store', headers: { Accept: 'text/calendar, text/plain, application/xml' } })
+      const response = await fetch('/api/calendar/fetch', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          feedUrl: caldavUsername && caldavPassword ? undefined : caldavUrl,
+          caldav: caldavUsername && caldavPassword
+            ? { url: caldavUrl, username: caldavUsername, password: caldavPassword }
+            : undefined,
+        }),
+      })
       if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const body = await response.text()
-      if (!body.includes('BEGIN:VCALENDAR')) {
-        throw new Error('The server did not return an ICS feed')
-      }
-      const remoteEvents = parseIcs(body)
+      const body = await response.json()
+      const remoteEvents = (body.events || []).reduce((result, event) => {
+        result[event.date] = [...(result[event.date] || []), event]
+        return result
+      }, {})
       setEvents((current) => {
         const localOnly = Object.fromEntries(
           Object.entries(current).map(([date, dayEvents]) => [

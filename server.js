@@ -243,6 +243,25 @@ async function route(request, response) {
       return json(response, 200, { connected: true, deviceId: pair.id })
     }
 
+    if (request.method === 'POST' && url.pathname === '/api/calendar/fetch') {
+      const body = await readJson(request)
+      const feedUrl = validFeedUrl(body.feedUrl)
+      const source = body.caldav
+        ? {
+            type: 'caldav',
+            url: validFeedUrl(body.caldav.url),
+            username: body.caldav.username,
+            password: body.caldav.password,
+          }
+        : null
+      if (!source && !feedUrl) return json(response, 400, { error: 'Bitte eine gültige Kalender-URL eingeben.' })
+      if (source && (!source.url || !validCredentials(source.username) || !validCredentials(source.password))) {
+        return json(response, 400, { error: 'CalDAV-URL, Benutzername und Passwort werden benötigt.' })
+      }
+      const events = await fetchCalendarSource(source || { type: 'ics', url: feedUrl })
+      return json(response, 200, { events, updatedAt: Date.now() })
+    }
+
     if (request.method === 'GET' && url.pathname === '/api/glasses/status') {
       const device = devices.get(url.searchParams.get('deviceId'))
       return json(response, 200, { connected: Boolean(device) })
