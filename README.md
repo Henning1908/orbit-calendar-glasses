@@ -1,53 +1,45 @@
 # Orbit Calendar
 
-Orbit is a **web app**: a glance-first calendar inspired by the supplied planner reference and optimized for a narrow, high-contrast screen such as Meta Display glasses. It runs in a normal browser and can be published as a static site on Render.
+Orbit has two parts:
 
-[Deutsche Setup-Anleitung: **SETUP.md**](SETUP.md)
+- a glance-first web app for the calendar UI and Render preview
+- an Android companion that reads calendars synchronized by DAVx5 and sends them to Meta Display glasses
 
-## Features
+## Data flow
 
-- Large, glanceable month grid with keyboard-friendly navigation
-- Local event presets and browser persistence
-- ICS export for importing or sharing calendar data with DAVx5
-- CalDAV/ICS URL refresh with manual sync and automatic reload on focus, visibility, and reconnect
-- Responsive layout suitable for phone, desktop, and browser-based wearable experiences
-- No calendar credentials stored by the app
+```text
+DAVx5 on phone
+      ↓ CalDAV sync
+Android Calendar Provider
+      ↓ READ_CALENDAR
+Orbit Android companion
+      ↓ Meta Wearables Device Access Toolkit
+Meta Display glasses
+```
 
-## Development
+DAVx5 remains the only component that stores the CalDAV login. Orbit does not ask for or store your DAVx5 password.
+
+## Web app
 
 ```bash
 npm install
 npm run dev
-```
-
-Create a production build with:
-
-```bash
 npm run build
 ```
 
-## Deploy on Render
+The web preview is published at <https://orbit-calendar-glasses.onrender.com/>. It is useful for the calendar UI, local events, ICS export, and optional CORS-enabled ICS feeds. It cannot itself read the Android Calendar Provider or keep a phone-to-glasses connection in the background.
 
-This repository includes `render.yaml` for a static-site deployment:
+## Android companion
 
-- **Build command:** `npm ci && npm run build`
-- **Publish directory:** `dist`
+The `androidApp` module is the actual phone connection:
 
-The site is intentionally a client-side web app. Render hosts the interface; it does not receive DAVx5 passwords or CalDAV credentials.
+1. Install and sign in to DAVx5 on the phone.
+2. Let DAVx5 synchronize the desired calendars.
+3. Install the Orbit debug APK from the GitHub Actions artifact.
+4. Allow calendar and Bluetooth permissions.
+5. Press **Connect Meta display glasses**.
+6. Orbit reads the Android Calendar Provider and republishes changes to the glasses automatically.
 
-## DAVx5 and browser limitations
+Builds are produced by `.github/workflows/build-android.yml`. Android Studio is only needed for local development; normal users can download the APK artifact from GitHub Actions.
 
-DAVx5 remains the calendar sync app on Android. A browser cannot read DAVx5's private Android Calendar Provider or reuse the DAVx5 login session. Orbit therefore supports two web-safe flows:
-
-1. Configure an ICS feed or a public/CORS-enabled calendar endpoint in the settings and use **Load DAVx5 updates**.
-2. Use **Export .ics** and import the file into DAVx5.
-
-Most authenticated CalDAV collections return WebDAV XML and do not allow browser CORS requests. For a production connection to a private CalDAV server, add a same-origin server-side proxy or use an ICS feed. The proxy must keep credentials server-side and must never expose them to the browser.
-
-## Meta Display glasses
-
-The project is intentionally the **web-app option**, not a native Android application or an APK. The calendar is displayed by opening the deployed site in a browser environment supported by the glasses. The web app cannot use Meta's native Device Access Toolkit directly, so native-only capabilities such as direct device pairing, background delivery, or reading DAVx5's Android provider are outside this repository's scope.
-
-The UI is designed to remain readable on a narrow display: high contrast, large type, compact event cards, and no dependency on hover interactions.
-
-On supported Meta display web-app environments, open `https://orbit-calendar-glasses.onrender.com/`. Month navigation works with swipe gestures, left/right keys, and the visible navigation buttons. A normal website still cannot access a logged-in DAVx5 account on Android.
+See [SETUP.md](SETUP.md) for the complete setup.
