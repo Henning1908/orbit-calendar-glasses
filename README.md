@@ -8,7 +8,7 @@
 
 A calm, glance-first calendar for the web and Meta display glasses. Connect a read-only ICS feed or a private CalDAV calendar, pair the glasses with a short code, and keep upcoming plans close.
 
-[Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Set up the glasses](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
+[Open Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) · [Read the guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html)
 
 Part of **Meta Display Apps** — explore [WebUntis Glasses](https://webuntis-glasses.henning-orbit-calendar.workers.dev/) for your school timetable.
 
@@ -20,11 +20,7 @@ Part of **Meta Display Apps** — explore [WebUntis Glasses](https://webuntis-gl
 
 ## Start in a minute
 
-1. Open the [glasses page](https://orbit-calendar.henning-orbit-calendar.workers.dev/glasses.html) on a supported display browser. Leave it open; a six-digit pairing code appears.
-2. On your phone or computer, open [Orbit Calendar](https://orbit-calendar.henning-orbit-calendar.workers.dev/) and choose the settings button.
-3. Enter the CalDAV server address, username, and an app password. Enter the code from the glasses and choose **Send calendar to glasses**.
-
-The glasses check for calendar changes every 60 seconds. The code expires after 10 minutes. No account, app install, or payment is required to try the hosted app.
+For Meta glasses setup, open the [online guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html) on your phone or computer. It includes a QR install link to add Orbit to the glasses, then walks you through calendar pairing. The glasses refresh events automatically. No Orbit account or payment is required.
 
 > Need help finding your provider's CalDAV address? See the [step-by-step guide](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.html) or the [German version](https://orbit-calendar.henning-orbit-calendar.workers.dev/guide.de.html).
 
