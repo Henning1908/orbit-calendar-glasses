@@ -307,10 +307,10 @@ function mdaCookie(value) {
   return `mda_device=${value}; Domain=henning-orbit-calendar.workers.dev; Path=/; Max-Age=31536000; Secure; HttpOnly; SameSite=Strict`
 }
 
-async function centralDeviceForSession(request) {
+async function centralDeviceForSession(request, env) {
   const cookie = request.headers.get('Cookie') || ''
   if (!cookie) return null
-  const response = await fetch('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/me', { headers: { Cookie: cookie }, signal: AbortSignal.timeout(8000) })
+  const response = await env.META_DISPLAY_APPS.fetch(new Request('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/me', { headers: { Cookie: cookie }, signal: AbortSignal.timeout(8000) }))
   if (!response.ok) return null
   const data = await response.json().catch(() => null)
   return data?.connected && /^[a-f0-9]{64}$/.test(data.deviceHash || '') ? data.deviceHash : null
@@ -318,10 +318,10 @@ async function centralDeviceForSession(request) {
 
 async function centralDeviceForToken(deviceToken, env) {
   if (!deviceToken || !env.MDA_LINK_SECRET) return null
-  const response = await fetch('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/resolve', {
+  const response = await env.META_DISPLAY_APPS.fetch(new Request('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/resolve', {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.MDA_LINK_SECRET}` },
     body: JSON.stringify({ deviceToken }), signal: AbortSignal.timeout(8000),
-  })
+  }))
   if (!response.ok) return null
   const data = await response.json().catch(() => null)
   return data?.connected && /^[a-f0-9]{64}$/.test(data.deviceHash || '') ? data.deviceHash : null
@@ -394,7 +394,7 @@ async function route(request, env) {
         if (!pair || Date.now() - pair.created_at > 10 * 60 * 1000) return json({ error: 'Code ungültig oder abgelaufen.' }, 400)
         deviceId = pair.mda_device_hash || pair.id
       } else {
-        deviceId = await centralDeviceForSession(request).catch(() => null)
+        deviceId = await centralDeviceForSession(request, env).catch(() => null)
         if (!deviceId) return json({ error: 'Sign in to Meta Display Apps and link your glasses first, or enter the glasses code.' }, 401)
       }
       const source = normalizeSource(body)
