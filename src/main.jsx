@@ -282,7 +282,7 @@ function App() {
 
   async function connectGlasses() {
     const normalizedCode = pairCode.replace(/\s/g, '')
-    if (!/^\d{6}$/.test(normalizedCode)) {
+    if (normalizedCode && !/^\d{6}$/.test(normalizedCode)) {
       setPairMessage('Enter the 6-digit code shown on the glasses.')
       return
     }
@@ -467,14 +467,14 @@ function App() {
             </div>
             <div className="pairing-card">
               <strong>Connect glasses</strong>
-              <span>Open <code>/glasses.html</code> on the glasses, then enter the 6-digit code shown there. The credentials stay on the Orbit server and are not sent to the glasses.</span>
+              <span>Open <code>/glasses.html</code> on the glasses. If you have already linked the glasses to your Meta Display Apps account, leave the code blank. Otherwise enter the 6-digit code. The credentials stay on the Orbit server and are not sent to the glasses.</span>
               <input
                 inputMode="numeric"
                 maxLength="7"
                 value={pairCode}
                 onChange={(event) => setPairCode(event.target.value)}
                 placeholder="123 456"
-                aria-label="Six-digit glasses pairing code"
+                aria-label="Optional six-digit glasses pairing code"
               />
               <button className="primary-action" onClick={connectGlasses}>Send calendar to glasses</button>
               {pairMessage && <span className="pair-message">{pairMessage}</span>}

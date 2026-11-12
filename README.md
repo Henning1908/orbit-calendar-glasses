@@ -55,6 +55,8 @@ npm run dev
 
 Vite serves the interface locally. The production API runs in the Cloudflare Worker; the glasses pairing and sync flow therefore needs the deployed app or a local Worker environment.
 
+To use the optional local Node API with Vite, set `ORBIT_STORAGE_KEY` and run `npm start` in a second terminal. It listens on loopback port 3000, matching Vite's `/api` proxy, and stores encrypted connections under the ignored `.data/` directory. This local fallback does not support Meta Display Apps account linking; use the deployed app or Wrangler local Worker for that flow.
+
 For architecture, deployment, and maintenance details, see the maintainer docs: [architecture](docs/ARCHITECTURE.md) · [deployment](docs/DEPLOYMENT.md). Do not commit `.env.cloudflare-secret` or calendar credentials.
 
 ## License

@@ -2,6 +2,7 @@ import staticAssets from './cloudflare-assets.js'
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
+const hash = async (value) => [...new Uint8Array(await crypto.subtle.digest('SHA-256', encoder.encode(value)))].map((byte) => byte.toString(16).padStart(2, '0')).join('')
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -287,15 +288,54 @@ function randomId() {
   return encodeBase64Url(crypto.getRandomValues(new Uint8Array(18)))
 }
 
-async function createPair(env) {
+function readCookie(request, name) {
+  const value = request.headers.get('Cookie') || ''
+  return value.match(new RegExp(`(?:^|;\\s*)${name}=([^;]+)`))?.[1] || ''
+}
+
+async function resolveGlassesDeviceId(request, env, requestedId) {
+  const id = String(requestedId || '')
+  if (id) {
+    const direct = await env.DB.prepare('SELECT device_id FROM devices WHERE device_id = ?').bind(id).first()
+    if (direct) return id
+  }
+  const deviceToken = readCookie(request, 'mda_device')
+  return deviceToken ? hash(deviceToken) : id
+}
+
+function mdaCookie(value) {
+  return `mda_device=${value}; Domain=henning-orbit-calendar.workers.dev; Path=/; Max-Age=31536000; Secure; HttpOnly; SameSite=Strict`
+}
+
+async function centralDeviceForSession(request) {
+  const cookie = request.headers.get('Cookie') || ''
+  if (!cookie) return null
+  const response = await fetch('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/me', { headers: { Cookie: cookie }, signal: AbortSignal.timeout(8000) })
+  if (!response.ok) return null
+  const data = await response.json().catch(() => null)
+  return data?.connected && /^[a-f0-9]{64}$/.test(data.deviceHash || '') ? data.deviceHash : null
+}
+
+async function centralDeviceForToken(deviceToken, env) {
+  if (!deviceToken || !env.MDA_LINK_SECRET) return null
+  const response = await fetch('https://meta-display-apps.henning-orbit-calendar.workers.dev/api/device/resolve', {
+    method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.MDA_LINK_SECRET}` },
+    body: JSON.stringify({ deviceToken }), signal: AbortSignal.timeout(8000),
+  })
+  if (!response.ok) return null
+  const data = await response.json().catch(() => null)
+  return data?.connected && /^[a-f0-9]{64}$/.test(data.deviceHash || '') ? data.deviceHash : null
+}
+
+async function createPair(env, deviceToken = randomId()) {
   await env.DB.prepare('DELETE FROM pairings WHERE created_at < ?').bind(Date.now() - 60 * 60 * 1000).run()
   for (let attempt = 0; attempt < 5; attempt += 1) {
     const id = randomId()
     const code = String(100000 + crypto.getRandomValues(new Uint32Array(1))[0] % 900000)
     try {
-      await env.DB.prepare('INSERT INTO pairings (id, code, created_at) VALUES (?, ?, ?)')
-        .bind(id, code, Date.now()).run()
-      return { id, code }
+      await env.DB.prepare('INSERT INTO pairings (id, code, created_at, mda_device_hash) VALUES (?, ?, ?, ?)')
+        .bind(id, code, Date.now(), await hash(deviceToken)).run()
+      return { id, code, deviceToken }
     } catch (error) {
       if (attempt === 4) throw error
     }
@@ -308,11 +348,28 @@ async function route(request, env) {
   try {
     if (request.method === 'POST' && url.pathname === '/api/glasses/pair') {
       const body = await readJson(request)
-      if (body.deviceId) {
-        const existing = await env.DB.prepare('SELECT device_id FROM devices WHERE device_id = ?').bind(body.deviceId).first()
-        if (existing) return json({ id: body.deviceId, connected: true })
+      const deviceToken = readCookie(request, 'mda_device') || randomId()
+      const registeredDevice = await centralDeviceForToken(deviceToken, env).catch(() => null)
+      if (registeredDevice) {
+        const existing = await env.DB.prepare('SELECT device_id FROM devices WHERE device_id = ?').bind(registeredDevice).first()
+        return json({ id: registeredDevice, connected: Boolean(existing), registered: true, setupRequired: !existing }, 200, { 'Set-Cookie': mdaCookie(deviceToken) })
       }
-      return json(await createPair(env))
+      if (body.deviceId && readCookie(request, 'mda_device')) {
+        const existing = await env.DB.prepare('SELECT device_id FROM devices WHERE device_id = ?').bind(body.deviceId).first()
+        if (existing) return json({ id: body.deviceId, connected: true }, 200, { 'Set-Cookie': mdaCookie(deviceToken) })
+      }
+      const pair = await createPair(env, deviceToken)
+      return json({ id: pair.id, code: pair.code }, 200, { 'Set-Cookie': mdaCookie(pair.deviceToken) })
+    }
+
+    if (request.method === 'POST' && url.pathname === '/api/mda/resolve-code') {
+      if (!env.MDA_LINK_SECRET || request.headers.get('Authorization') !== `Bearer ${env.MDA_LINK_SECRET}`) return json({ error: 'Unauthorized.' }, 401)
+      const body = await readJson(request)
+      const code = String(body.code || '').replace(/\s/g, '')
+      if (!/^\d{6}$/.test(code)) return json({ error: 'Enter the six-digit code shown in Orbit Calendar.' }, 400)
+      const pair = await env.DB.prepare('SELECT id, created_at, mda_device_hash FROM pairings WHERE code = ?').bind(code).first()
+      if (!pair || !pair.mda_device_hash || Date.now() - pair.created_at > 10 * 60 * 1000) return json({ error: 'That Orbit Calendar code is invalid or has expired.' }, 400)
+      return json({ deviceId: pair.id, deviceHash: pair.mda_device_hash })
     }
 
     if (request.method === 'GET' && url.pathname === '/api/pair/status') {
@@ -331,19 +388,24 @@ async function route(request, env) {
     if (request.method === 'POST' && url.pathname === '/api/pair/claim') {
       const body = await readJson(request)
       const code = String(body.code || '').replace(/\s/g, '')
-      const pair = await env.DB.prepare('SELECT id, created_at FROM pairings WHERE code = ?').bind(code).first()
-      if (!pair || Date.now() - pair.created_at > 10 * 60 * 1000) {
-        return json({ error: 'Code ungültig oder abgelaufen.' }, 400)
+      let deviceId
+      if (code) {
+        const pair = await env.DB.prepare('SELECT id, created_at, mda_device_hash FROM pairings WHERE code = ?').bind(code).first()
+        if (!pair || Date.now() - pair.created_at > 10 * 60 * 1000) return json({ error: 'Code ungültig oder abgelaufen.' }, 400)
+        deviceId = pair.mda_device_hash || pair.id
+      } else {
+        deviceId = await centralDeviceForSession(request).catch(() => null)
+        if (!deviceId) return json({ error: 'Sign in to Meta Display Apps and link your glasses first, or enter the glasses code.' }, 401)
       }
       const source = normalizeSource(body)
       await fetchSource(source)
       const encrypted = await encrypt({ source, updatedAt: Date.now() }, env.ORBIT_STORAGE_KEY)
       await env.DB.batch([
         env.DB.prepare('INSERT OR REPLACE INTO devices (device_id, encrypted_data, updated_at) VALUES (?, ?, ?)')
-          .bind(pair.id, encrypted, Date.now()),
-        env.DB.prepare('DELETE FROM pairings WHERE id = ?').bind(pair.id),
+          .bind(deviceId, encrypted, Date.now()),
+        ...(code ? [env.DB.prepare('DELETE FROM pairings WHERE code = ?').bind(code)] : []),
       ])
-      return json({ connected: true, deviceId: pair.id })
+      return json({ connected: true, deviceId })
     }
 
     if (request.method === 'POST' && url.pathname === '/api/calendar/fetch') {
@@ -352,14 +414,16 @@ async function route(request, env) {
     }
 
     if (request.method === 'GET' && url.pathname === '/api/glasses/status') {
+      const deviceId = await resolveGlassesDeviceId(request, env, url.searchParams.get('deviceId'))
       const device = await env.DB.prepare('SELECT device_id FROM devices WHERE device_id = ?')
-        .bind(url.searchParams.get('deviceId')).first()
+        .bind(deviceId).first()
       return json({ connected: Boolean(device) })
     }
 
     if (request.method === 'GET' && url.pathname === '/api/glasses/calendar') {
+      const deviceId = await resolveGlassesDeviceId(request, env, url.searchParams.get('deviceId'))
       const device = await env.DB.prepare('SELECT encrypted_data FROM devices WHERE device_id = ?')
-        .bind(url.searchParams.get('deviceId')).first()
+        .bind(deviceId).first()
       if (!device) return json({ error: 'Brille noch nicht gekoppelt.' }, 401)
       const state = await decrypt(device.encrypted_data, env.ORBIT_STORAGE_KEY)
       const events = await fetchSource(state.source)

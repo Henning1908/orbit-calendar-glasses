@@ -9,11 +9,12 @@ const root = path.dirname(fileURLToPath(import.meta.url))
 const publicDir = path.join(root, 'public')
 const distDir = path.join(root, 'dist')
 const port = Number(process.env.PORT || 3000)
+const host = process.env.HOST || '127.0.0.1'
 const dataDir = process.env.DATA_DIR || path.join(root, '.data')
 const stateFile = path.join(dataDir, 'devices.enc')
-const storageKey = createHash('sha256')
-  .update(process.env.ORBIT_STORAGE_KEY || 'orbit-development-storage-key')
-  .digest()
+const storageSecret = process.env.ORBIT_STORAGE_KEY
+if (!storageSecret) throw new Error('Set ORBIT_STORAGE_KEY before starting the local Orbit server.')
+const storageKey = createHash('sha256').update(storageSecret).digest()
 const pairings = new Map()
 const devices = new Map()
 const mimeTypes = {
@@ -50,7 +51,22 @@ function createPair() {
 function validFeedUrl(value) {
   try {
     const url = new URL(String(value || ''))
-    return ['http:', 'https:'].includes(url.protocol) ? url.toString() : null
+    if (!['http:', 'https:'].includes(url.protocol)) return null
+    const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+    if (
+      !host || host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') ||
+      host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80:')
+    ) return null
+    const ipv4 = host.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
+    if (ipv4) {
+      const [, a, b] = ipv4.map(Number)
+      if (
+        a === 0 || a === 10 || a === 127 || a >= 224 ||
+        (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) ||
+        (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127)
+      ) return null
+    }
+    return url.toString()
   } catch {
     return null
   }
@@ -305,6 +321,6 @@ async function route(request, response) {
 }
 
 await loadDevices()
-http.createServer(route).listen(port, () => {
-  console.log(`Orbit Calendar server listening on port ${port}`)
+http.createServer(route).listen(port, host, () => {
+  console.log(`Orbit Calendar server listening on http://${host}:${port}`)
 })

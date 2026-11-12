@@ -139,6 +139,15 @@
             loadCalendar();
             return;
           }
+          if (body.setupRequired && body.registered) {
+            deviceId = body.id;
+            localStorage.setItem('orbit-glasses-device', deviceId);
+            pair = body;
+            code.textContent = '✓';
+            status.textContent = 'Device registered. Finish setup on your phone to add a calendar.';
+            check();
+            return;
+          }
           pair = body;
           code.textContent = body.code.slice(0, 3) + ' ' + body.code.slice(3);
           status.textContent = 'Enter this code on your phone or PC.';
